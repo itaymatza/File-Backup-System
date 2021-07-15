@@ -12,7 +12,7 @@ def get_tcp_port(file):
             if not 0 < port_info < 65536:
                 raise ValueError
     except IOError:
-        raise IOError("Error: server.info file is not accessible.")
+        raise IOError("Error: port.info file is not accessible.")
     except ValueError:
         raise ValueError("Error: Invalid port number.") from None
     return port_info
