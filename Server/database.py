@@ -16,21 +16,19 @@ class DataBase:
         except sqlite3.Error as error:
             raise sqlite3.Error('Database error: %s' % error)
 
-    # If not exist, create 'clients' and 'messages' SQL tables.
+    # Initials the database. If not exist, create 'clients' and 'files' SQL tables.
     def init_sql_tables(self):
         if not self._is_table_exists('clients'):
             self.db.executescript(""" CREATE TABLE clients(
             ID varchar(16) NOT NULL PRIMARY KEY, 
             Name varchar(255), 
-            PublicKey varchar(160), 
-            LastSeen text);
+            password varchar(160);
             """)
-        if not self._is_table_exists('messages'):
-            self.db.executescript(""" CREATE TABLE messages(
+        if not self._is_table_exists('files'):
+            self.db.executescript(""" CREATE TABLE files(
             ID INTEGER PRIMARY KEY,
-            ToClient varchar(16),
-            FromClient varchar(16), 
-            Type INT1, 
+            Client varchar(16),
+            Name varchar(255),
             Content Blob);
             """)
         self.db.commit()
@@ -59,71 +57,40 @@ class DataBase:
 
     # Check if given ID is already exists in clients table.
     def is_id_exists(self, uid):
-        uid = uuid.UUID(bytes=uid)
+        _uid = uuid.UUID(bytes=uid)
         self.cursor.execute("""
             SELECT COUNT(*)
             FROM clients
             WHERE ID = '{0}'
-            """.format(uid))
+            """.format(_uid))
         if self.cursor.fetchone()[0] != 0:
             return True
         return False
 
     # Generates new uuid and make sure is not already in clients table.
     def _get_new_uuid(self):
-        uid = uuid.uuid4()
-        while self.is_id_exists(uid.bytes):
-            uid = uuid.uuid4()
-        return uid
+        _uid = uuid.uuid4()
+        while self.is_id_exists(_uid.bytes):
+            _uid = uuid.uuid4()
+        return _uid
 
     # Add new client to clients table.
-    def add_client(self, name, key):
-        uid = self._get_new_uuid()
+    def add_client(self, name, password):
+        _uid = self._get_new_uuid()
         self.cursor.execute("""
-                INSERT INTO clients VALUES ('{0}', ?, ?, datetime('now'))
-                """.format(uid), [name, key])
+                INSERT INTO clients VALUES ('{0}', ?, ?)
+                """.format(_uid), [name, password])
         self.db.commit()
-        return uid
+        return _uid
 
-    # Add new client to clients table.
-    def update_client_last_seen(self, uid):
-        uid = uuid.UUID(bytes=uid)
-        self.cursor.execute("""
-                UPDATE clients SET LastSeen = datetime('now')
-                WHERE ID = '{0}'
-                """.format(uid))
-        self.db.commit()
-        return uid
-
-    # Returns clients list except of the given uid.
-    def get_clients_list(self, uid):
-        uid = uuid.UUID(bytes=uid)
-        self.cursor.execute("""
-            SELECT ID, Name
-            FROM clients
-            WHERE ID != '{0}'
-            """.format(uid))
-        return self.cursor.fetchall()
-
-    # Returns public key of the given uid.
-    def get_public_key(self, uid):
-        uid = uuid.UUID(bytes=uid)
-        self.cursor.execute("""
-            SELECT ID, PublicKey
-            FROM clients
-            WHERE ID = '{0}'
-            """.format(uid))
-        return self.cursor.fetchall()
-
-    # Add message to messages table.
-    def add_message(self, to_client, from_client, message_type, message_content):
-        to_client = uuid.UUID(bytes=to_client)
-        from_client = uuid.UUID(bytes=from_client)
+    # Add file to files table.
+    # Returns file's ID.
+    def add_file(self, client, file_name, file_content):
+        _client = uuid.UUID(bytes=client)
         self.db.execute("""
-                    INSERT INTO messages (ToClient, FromClient, Type, Content)
-                    VALUES ('{0}', '{1}', ?, ?)
-                    """.format(to_client, from_client),
-                        [message_type, message_content])
+                    INSERT INTO files (Client, Name, Content)
+                    VALUES ('{0}', ?, ?)
+                    """.format(_client), [file_name, file_content])
         self.db.commit()
 
         self.cursor.execute("""
@@ -131,23 +98,23 @@ class DataBase:
             """)
         return self.cursor.fetchall()[0][0]
 
-    # Pull messages from messages table.
-    def pull_messages(self, to_client):
-        to_client = uuid.UUID(bytes=to_client)
+    # Pull file from files table.
+    def pull_files(self, client, file_name):
+        _client = uuid.UUID(bytes=client)
         self.cursor.execute("""
-            SELECT FromClient, ID, Type, Content
-            FROM messages
-            WHERE ToClient = '{0}'
-            """.format(to_client))
+            SELECT Content
+            FROM files
+            WHERE Client = '{0}' and Name = ?
+            """.format(_client), [file_name])
         return self.cursor.fetchall()
 
-    # Delete messages from messages table.
-    def delete_messages(self, to_client):
-        to_client = uuid.UUID(bytes=to_client)
+    # Delete file from files table.
+    def delete_file(self, client, file_name):
+        _client = uuid.UUID(bytes=client)
         self.db.executescript("""
-                    DELETE FROM messages
-                    WHERE ToClient = '{0}'
-                    """.format(to_client))
+                    DELETE FROM files
+                    WHERE ToClient = '{0}' and Name = ?
+                    """.format(_client))
         self.db.commit()
 
     # Destructor method

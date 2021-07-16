@@ -57,8 +57,8 @@ def request_handler(conn, lock):
 
         elif code == RequestCode.PULL_MESSAGES_REQUEST.value:
             lock.acquire()
-            messages = db.pull_messages(request.header.client_id)
-            db.delete_messages(request.header.client_id)
+            messages = db.pull_files(request.header.client_id)
+            db.delete_file(request.header.client_id)
             lock.release()
             response.set_pull_messages(messages)
 
@@ -67,16 +67,12 @@ def request_handler(conn, lock):
                 response.set_general_error()
             else:
                 lock.acquire()
-                message_id = db.add_message(request.payload.client_id,
-                                            request.header.client_id,
-                                            request.payload.message_type,
-                                            request.payload.message_content)
+                message_id = db.add_file(request.payload.client_id,
+                                         request.header.client_id,
+                                         request.payload.message_type,
+                                         request.payload.message_content)
                 lock.release()
                 response.set_push_message(request.payload.client_id, message_id)
-
-        lock.acquire()
-        db.update_client_last_seen(request.header.client_id)
-        lock.release()
 
         encoded_response = protocol.encode_server_response(response)
         conn.sendall(encoded_response)
