@@ -1,7 +1,7 @@
-"""MessageU-Server
+"""File Backup System - Server
 
 The role of this module is to manage the list of users registered to
-MessageU service and allow them to exchange messages of various types.
+the service and allow them to backup and resotre files.
 
 """
 import socket
@@ -12,7 +12,7 @@ import server_helper
 from protocol_request import RequestCode
 from protocol_response import ResponseCode
 
-SERVER_VERSION = 2
+SERVER_VERSION = 1
 UID_LEN = 16
 
 
@@ -84,16 +84,18 @@ def request_handler(conn, lock):
 
 if __name__ == '__main__':
     TCP_IP = ''
-    TCP_PORT = server_helper.get_tcp_port('port.info')
+    PORT_FILE = 'port.info'
+    TCP_PORT = server_helper.get_tcp_port(PORT_FILE)
 
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind((TCP_IP, TCP_PORT))
-            th_lock = threading.Lock()
+            thread_lock = threading.Lock()
             while True:
                 sock.listen(100)
                 sock_conn, address_and_port = sock.accept()
-                client_thread = threading.Thread(target=request_handler, args=(sock_conn, th_lock))
+                client_thread = threading.Thread(target=request_handler,
+                                                 args=(sock_conn, thread_lock))
                 client_thread.start()
-    except Exception as e:
-        print('Error: %s' % e)
+    except Exception as error:
+        print('Error: %s' % error)

@@ -1,32 +1,20 @@
-""" Message-U Database - DB manager."""
+""" File Backup System Database - DB manager."""
 import uuid
 import sqlite3
+
+DATABASE = 'server.db'
 
 
 class DataBase:
     def __init__(self):
         try:
-            self.db = sqlite3.connect('server.db')
+            self.db = sqlite3.connect(DATABASE)
             self.db.text_factory = bytes
             self.cursor = self.db.cursor()
             sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
             self.init_sql_tables()
-        except sqlite3.Error as e:
-            raise sqlite3.Error('Database error: %s' % e)
-
-    def __del__(self):
-        self.db.close()
-
-    # Check if given table_name exists in given SQL DB.
-    def _is_table_exists(self, table_name):
-        self.cursor.execute("""
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type='table' AND name = '{0}'
-            """.format(table_name.replace('\'', '\'\'')))
-        if self.cursor.fetchone()[0] == 1:
-            return True
-        return False
+        except sqlite3.Error as error:
+            raise sqlite3.Error('Database error: %s' % error)
 
     # If not exist, create 'clients' and 'messages' SQL tables.
     def init_sql_tables(self):
@@ -46,6 +34,17 @@ class DataBase:
             Content Blob);
             """)
         self.db.commit()
+
+    # Check if given table_name exists in given SQL DB.
+    def _is_table_exists(self, table_name):
+        self.cursor.execute("""
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE type='table' AND name = '{0}'
+            """.format(table_name.replace('\'', '\'\'')))
+        if self.cursor.fetchone()[0] == 1:
+            return True
+        return False
 
     # Check if given client username is already exists in clients table.
     def is_client_exists(self, name):
@@ -150,3 +149,7 @@ class DataBase:
                     WHERE ToClient = '{0}'
                     """.format(to_client))
         self.db.commit()
+
+    # Destructor method
+    def __del__(self):
+        self.db.close()
