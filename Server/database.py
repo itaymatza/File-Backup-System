@@ -27,7 +27,7 @@ class DataBase:
         if not self._is_table_exists('files'):
             self.db.executescript(""" CREATE TABLE files(
             ID INTEGER PRIMARY KEY,
-            Client varchar(16),
+            Owner varchar(16),
             Name varchar(255),
             Content Blob);
             """)
@@ -88,7 +88,7 @@ class DataBase:
     def add_file(self, client, file_name, file_content):
         _client = uuid.UUID(bytes=client)
         self.db.execute("""
-                    INSERT INTO files (Client, Name, Content)
+                    INSERT INTO files (Owner, Name, Content)
                     VALUES ('{0}', ?, ?)
                     """.format(_client), [file_name, file_content])
         self.db.commit()
@@ -104,7 +104,7 @@ class DataBase:
         self.cursor.execute("""
             SELECT Content
             FROM files
-            WHERE Client = '{0}' and Name = ?
+            WHERE Owner = '{0}' and Name = ?
             """.format(_client), [file_name])
         return self.cursor.fetchall()
 
@@ -113,7 +113,7 @@ class DataBase:
         _client = uuid.UUID(bytes=client)
         self.db.executescript("""
                     DELETE FROM files
-                    WHERE ToClient = '{0}' and Name = ?
+                    WHERE Owner = '{0}' and Name = ?
                     """.format(_client))
         self.db.commit()
 
