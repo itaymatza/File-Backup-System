@@ -5,11 +5,16 @@ ULONG_MAX = (2 ** (8 * 4)) - 1
 USHORT = '<H'  # unsigned 16-bit short
 UCHAR = '<B'  # unsigned 8-bit char
 UCHAR_MAX = (2 ** 8) - 1
-OP = {'BACKUP_REQUEST': 100, 'RECOVER_REQUEST': 200,
-      'DELETION_REQUEST': 201, 'GETLIST_REQUEST': 202}
-STATUS = {'RECOVER_SUCCESS': 210, 'SENT_LIST_SUCCESSFULLY': 211,
-          'BACKUP_OR_DELETE_SUCCESS': 212, 'UNKNOWN_FILE_ERROR': 1001,
-          'EMPTY_FILE_LIST_ERROR': 1002, 'GENERAL_ERROR': 1003}
+OP = {'BACKUP_REQUEST': 100,
+      'RECOVER_REQUEST': 101,
+      'DELETION_REQUEST': 102,
+      'GETLIST_REQUEST': 103}
+STATUS = {'RECOVER_SUCCESS': 210,
+          'SENT_LIST_SUCCESSFULLY': 211,
+          'BACKUP_OR_DELETE_SUCCESS': 212,
+          'UNKNOWN_FILE_ERROR': 1001,
+          'EMPTY_FILE_LIST_ERROR': 1002,
+          'GENERAL_ERROR': 1003}
 
 
 def encode_request_header(uid, version, op, filename=None):

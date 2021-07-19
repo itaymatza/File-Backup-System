@@ -8,7 +8,6 @@ without context information from previous packets in the session.
 
 """
 import struct
-from enum import Enum
 from protocol_request import Request, RequestCode
 from protocol_response import Response, ResponseCode
 
