@@ -1,7 +1,7 @@
 """File Backup System - Server
 
 The role of this module is to manage the list of users registered to
-the service and allow them to backup and resotre files.
+the service and allow them to backup and restore files.
 
 """
 import socket
