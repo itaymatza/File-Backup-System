@@ -1,4 +1,4 @@
-""" MessageU communication protocol.
+""" File Backup System - protocol.
 
 Decode requests and encode responses by the protocol specification.
 This is a stateless Protocol - no session information is retained by the
@@ -20,13 +20,6 @@ UCHAR_MAX = (2 ** 8) - 1
 CLIENT_ID_LENGTH = '<16s'
 USERNAME_LENGTH = '<255s'
 KEY_LENGTH = '<160s'
-
-
-class MessageType(Enum):
-    REQUEST_FOR_SYMMETRIC_KEY = 1
-    SYMMETRIC_KEY = 2
-    TEXT_MESSAGE = 3
-    SEND_FILE = 4
 
 
 def recv_all(sock, n):

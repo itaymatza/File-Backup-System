@@ -99,13 +99,23 @@ class DataBase:
         return self.cursor.fetchall()[0][0]
 
     # Pull file from files table.
-    def pull_files(self, client, file_name):
+    def pull_file(self, client, file_name):
         _client = uuid.UUID(bytes=client)
         self.cursor.execute("""
             SELECT Content
             FROM files
             WHERE Owner = '{0}' and Name = ?
             """.format(_client), [file_name])
+        return self.cursor.fetchall()
+
+    # Get files list owned by client.
+    def get_files_list(self, client):
+        _client = uuid.UUID(bytes=client)
+        self.cursor.execute("""
+            SELECT Name
+            FROM files
+            WHERE Owner = '{0}'
+            """.format(_client))
         return self.cursor.fetchall()
 
     # Delete file from files table.

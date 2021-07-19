@@ -3,6 +3,7 @@ from enum import Enum
 
 GENERAL_ERROR = 9000
 
+
 class RequestCode(Enum):
     REGISTER_REQUEST = 100
     CLIENTS_LIST_REQUEST = 101

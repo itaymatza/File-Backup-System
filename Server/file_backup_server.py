@@ -9,8 +9,6 @@ import protocol
 import threading
 import database
 import server_helper
-from protocol_request import RequestCode
-from protocol_response import ResponseCode
 
 SERVER_VERSION = 1
 UID_LEN = 16
@@ -32,10 +30,11 @@ def request_handler(conn, lock):
             break
 
         code = protocol.recv_and_decode_client_request(conn, db, request, uid)
-        if code == ResponseCode.GENERAL_ERROR.value:
+
+        if code == protocol.ResponseCode.GENERAL_ERROR.value:
             response.set_general_error()
 
-        elif code == RequestCode.REGISTER_REQUEST.value:
+        elif code == protocol.RequestCode.REGISTER_REQUEST.value:
             if db.is_client_exists(request.payload.name):
                 response.set_general_error()
             else:
@@ -44,25 +43,25 @@ def request_handler(conn, lock):
                 lock.release()
                 response.set_registered_successfully(uid)
 
-        elif code == RequestCode.CLIENTS_LIST_REQUEST.value:
+        elif code == protocol.RequestCode.CLIENTS_LIST_REQUEST.value:
             clients_list = db.get_clients_list(request.header.client_id)
             response.set_clients_list(clients_list)
 
-        elif code == RequestCode.PUBLIC_KEY_REQUEST.value:
+        elif code == protocol.RequestCode.PUBLIC_KEY_REQUEST.value:
             if not db.is_id_exists(request.payload.client_id):
                 response.set_general_error()
             else:
                 public_key, = db.get_public_key(request.payload.client_id)
                 response.set_public_key(public_key)
 
-        elif code == RequestCode.PULL_MESSAGES_REQUEST.value:
+        elif code == protocol.RequestCode.PULL_MESSAGES_REQUEST.value:
             lock.acquire()
-            messages = db.pull_files(request.header.client_id)
+            messages = db.pull_file(request.header.client_id)
             db.delete_file(request.header.client_id)
             lock.release()
             response.set_pull_messages(messages)
 
-        elif code == RequestCode.PUSH_MESSAGE_REQUEST.value:
+        elif code == protocol.RequestCode.PUSH_MESSAGE_REQUEST.value:
             if not db.is_id_exists(request.payload.client_id):
                 response.set_general_error()
             else:
