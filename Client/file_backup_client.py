@@ -1,5 +1,10 @@
+"""File Backup System - Client
 
-
+The role of this module is to interface with the client -
+Authenticate the client with the server,
+gets command from the client and send request to the server,
+receives response from the server and output status for the client.
+"""
 import socket
 from random import randrange
 from protocol import encode_request, decode_server_response, ULONG_MAX
