@@ -1,49 +1,36 @@
+"""File Backup System - Client
 
-
+The role of this module is to interface with the client -
+Authenticate the client with the server,
+gets command from the client and send request to the server,
+receives response from the server and output status for the client.
+"""
 import socket
 from random import randrange
+
+from Client.client_helper import get_server_ip_and_port
 from protocol import encode_request, decode_server_response, ULONG_MAX
 
 CLIENT_VERSION = 1
-
-
-def pars_info_files():
-    try:
-        with open('server.info') as server:
-            if len(server.readlines()) > 1:
-                print('Error: server.info file should be in format '
-                      '"server:port".')
-                exit(-1)
-            server.seek(0)
-            read_data = server.read()
-            ip_info, port_info = read_data.strip().split(':')
-            if len(port_info.split()) != 1 or not 0 < int(port_info) < 65536:
-                print('Error: Invalid port number.')
-    except IOError:
-        print("Error: server.info file is not accessible.")
-        exit(-1)
-
-    try:
-        with open('backup.info') as backup:
-            backup_files_info = backup.read().splitlines()
-            if len(backup_files_info) < 1:
-                raise Exception("Error: Cannot send file the the server - "
-                                "the file backup.info is empty.")
-            if len(backup_files_info) < 2:
-                raise Exception("Error: Cannot send file the the server - "
-                                "the file backup.info have just one file.")
-    except IOError:
-        print("Error: backup.info file is not accessible.")
-        exit(-1)
-    except Exception as e:
-        print("Error: %s." % e)
-        exit(-1)
-    return ip_info, int(port_info), backup_files_info
-
+MENU = """
+File-backup-system at your service.
+1) Backup file
+2) Recover file
+3) Get files list
+4) Delete file from backup
+5) Exit
+"""
 
 if __name__ == '__main__':
+    server_info_file = "server.info"
+    server_ip, server_port = get_server_ip_and_port(server_info_file)
+    proceed_to_another_request = True
+    while proceed_to_another_request:
+        option = int(input(MENU))
+
+
+
     uid = randrange(1, ULONG_MAX)
-    server_ip, server_port, backup_files_list = pars_info_files()
 
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
