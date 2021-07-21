@@ -4,6 +4,18 @@ import sqlite3
 
 DATABASE = 'server.db'
 
+sql_create_clients_table = """ CREATE TABLE IF NOT EXISTS clients( 
+                                ID varchar(16) NOT NULL PRIMARY KEY, 
+                                Name varchar(255), 
+                                Password varchar(160)
+                                ); """
+sql_create_files_table = """ CREATE TABLE IF NOT EXISTS files( 
+                                ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                OwnerID varchar(16),
+                                NameFile varchar(255),
+                                Content Blob)
+                                ); """
+
 
 class DataBase:
     def __init__(self):
@@ -11,49 +23,91 @@ class DataBase:
             self.db = sqlite3.connect(DATABASE)
             self.db.text_factory = bytes
             self.cursor = self.db.cursor()
-            sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
+            sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes)
             self.init_sql_tables()
         except sqlite3.Error as error:
             raise sqlite3.Error('Database error: %s' % error)
 
-    # Initials the database. If not exist, create 'clients' and 'files' SQL tables.
+    def create_table(self, create_table_sql):
+        """
+        Gets the table details (str) and create table
+        """
+        try:
+            self.cursor.execute(create_table_sql)
+            print(self.cursor.fetchall())
+        except sqlite3.Error as e:
+            print(e)
+
     def init_sql_tables(self):
-        if not self._is_table_exists('clients'):
-            self.db.executescript(""" CREATE TABLE clients(
-            ID varchar(16) NOT NULL PRIMARY KEY, 
-            Name varchar(255), 
-            password varchar(160);
-            """)
-        if not self._is_table_exists('files'):
-            self.db.executescript(""" CREATE TABLE files(
-            ID INTEGER PRIMARY KEY,
-            Owner varchar(16),
-            Name varchar(255),
-            Content Blob);
-            """)
+        """
+        Initials the database
+        """
+        if self.db is not None:
+            self.create_table(sql_create_clients_table)  # create clients table
+            self.create_table(sql_create_files_table)  # create messages table
+            self.db.commit()
+        else:
+            print("Error! cannot create the database connection.")
+
+    def insert_new_client_to_the_table(self, client_id, name, password):
+        """
+        # Add new client to clients table.
+        """
+        self.cursor.execute("INSERT INTO clients VALUES (?, ?, ?)", (client_id, name, password))
         self.db.commit()
 
-    # Check if given table_name exists in given SQL DB.
-    def _is_table_exists(self, table_name):
-        self.cursor.execute("""
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type='table' AND name = '{0}'
-            """.format(table_name.replace('\'', '\'\'')))
-        if self.cursor.fetchone()[0] == 1:
-            return True
-        return False
+    def insert_new_file_to_the_table(self, client_id, file_name, file_content):
+        """
+        # Add new file to files table and return the index of the file.
+        """
+        self.cursor.execute("INSERT INTO files(OwnerID, NameFile, Content) VALUES (?, ?, ?)", (client_id, file_name,
+                                                                                               file_content))
+        self.db.commit()
 
-    # Check if given client username is already exists in clients table.
+        self.cursor.execute("""SELECT last_insert_rowid()""")
+        return self.cursor.fetchall()[0][0]
+
+    def delete_file(self, client_id, file_name):
+        """
+        Delete file from files table
+        """
+        self.db.execute("DELETE FROM files WHERE Owner = ? and NameFile = ?", (client_id, file_name))
+        self.db.commit()
+
+    # .
+    def pull_file(self, client_id, file_name):
+        """
+        Pull file from files table
+        """
+        self.cursor.execute("SELECT Content FROM files WHERE Owner = ? and NameFile = ?", (client_id, file_name))
+        return self.cursor.fetchall()
+
+    # Get files list owned by client.
+    def get_files_list(self, client_id):
+        """
+        Get files list owned by client
+        """
+        self.cursor.execute("SELECT NameFile FROM files WHERE Owner = ?", (client_id,))
+        return self.cursor.fetchall()
+
+    def __del__(self):
+        """
+        Destructor method
+        """
+        self.cursor.close()
+        self.db.close()
+
     def is_client_exists(self, name):
-        self.cursor.execute("""
-            SELECT COUNT(*)
-            FROM clients
-            WHERE Name = ?
-            """, [name])
-        if self.cursor.fetchone()[0] != 0:
-            return True
-        return False
+        """
+        Return true if username is already exists in clients table
+        """
+        self.cursor.execute("SELECT COUNT(*) FROM clients WHERE Name = ? ", (name,))
+        s = self.cursor.fetchone()
+        return True if s else False
+
+    """
+    not in use
+    """
 
     # Check if given ID is already exists in clients table.
     def is_id_exists(self, uid):
@@ -73,60 +127,3 @@ class DataBase:
         while self.is_id_exists(_uid.bytes):
             _uid = uuid.uuid4()
         return _uid
-
-    # Add new client to clients table.
-    def add_client(self, name, password):
-        _uid = self._get_new_uuid()
-        self.cursor.execute("""
-                INSERT INTO clients VALUES ('{0}', ?, ?)
-                """.format(_uid), [name, password])
-        self.db.commit()
-        return _uid
-
-    # Add file to files table.
-    # Returns file's ID.
-    def add_file(self, client, file_name, file_content):
-        _client = uuid.UUID(bytes=client)
-        self.db.execute("""
-                    INSERT INTO files (Owner, Name, Content)
-                    VALUES ('{0}', ?, ?)
-                    """.format(_client), [file_name, file_content])
-        self.db.commit()
-
-        self.cursor.execute("""
-            SELECT last_insert_rowid()
-            """)
-        return self.cursor.fetchall()[0][0]
-
-    # Pull file from files table.
-    def pull_file(self, client, file_name):
-        _client = uuid.UUID(bytes=client)
-        self.cursor.execute("""
-            SELECT Content
-            FROM files
-            WHERE Owner = '{0}' and Name = ?
-            """.format(_client), [file_name])
-        return self.cursor.fetchall()
-
-    # Get files list owned by client.
-    def get_files_list(self, client):
-        _client = uuid.UUID(bytes=client)
-        self.cursor.execute("""
-            SELECT Name
-            FROM files
-            WHERE Owner = '{0}'
-            """.format(_client))
-        return self.cursor.fetchall()
-
-    # Delete file from files table.
-    def delete_file(self, client, file_name):
-        _client = uuid.UUID(bytes=client)
-        self.db.executescript("""
-                    DELETE FROM files
-                    WHERE Owner = '{0}' and Name = ?
-                    """.format(_client))
-        self.db.commit()
-
-    # Destructor method
-    def __del__(self):
-        self.db.close()
