@@ -5,7 +5,7 @@ UCHAR_MAX = (2 ** 8) - 1
 USHORT = '<H'  # unsigned 16-bit short
 USHORT_MAX = (2 ** (8 * 2))
 ULONG = '<L'  # unsigned 32-bit long
-ULONG_MAX = (2 ** (8 * 4)) - 1
+ULONG_MAX = (2 ** (8 * 4))
 UNAME_LENGTH = '<256s'
 USERNAME_LEN = 256
 
@@ -21,6 +21,7 @@ STATUS = {'RECOVER_SUCCESS': 210,
           'GENERAL_ERROR': 1003}
 
 
+# Encode client request according to the protocol spec
 def encode_request(uid, version, op, filename=None):
     request = encode_request_header(uid, version, op, filename)
     if op == 'BACKUP_REQUEST':
@@ -28,6 +29,7 @@ def encode_request(uid, version, op, filename=None):
     return request
 
 
+# Encode client request header according to the protocol spec
 def encode_request_header(uid, version, op, filename=None):
     # Validate parameters
     if len(uid) <= 0 or USERNAME_LEN < len(uid):
@@ -58,21 +60,21 @@ def encode_request_header(uid, version, op, filename=None):
     return header
 
 
+# Encode client request payload according to the protocol spec
+# Request payload apply just for backup request
 def encode_request_payload(filename):
     try:
         with open(filename, 'rb') as f:
-            payload = f.read()
-            payload_size = len(payload)
-            if payload_size <= 0 or payload_size >= ULONG_MAX:
-                raise Exception(
-                    'Failed to create request header - Invalid payload size')
+            file = f.read()
+            payload_size = len(file)
+            if payload_size <= 0 or ULONG_MAX < payload_size:
+                raise Exception('Failed to create request header - Invalid payload size')
     except IOError:
-        print("Error: " + filename + "file is not accessible.")
-        exit(-1)
+        raise Exception('Error: ' + filename + 'file is not accessible.')
 
-    header = struct.pack(ULONG, payload_size)
-    header += payload
-    return header
+    payload = struct.pack(ULONG, payload_size)
+    payload += payload
+    return payload
 
 
 def recv_all(sock, n):
