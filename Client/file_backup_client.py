@@ -6,20 +6,11 @@ gets command from the client and send request to the server,
 receives response from the server and output status for the client.
 """
 import socket
-from random import randrange
-
-from Client.client_helper import get_server_ip_and_port
+from Client.client_helper import MENU, get_server_ip_and_port, RequestMenu
 from protocol import encode_request, decode_server_response, ULONG_MAX
 
 CLIENT_VERSION = 1
-MENU = """
-File-backup-system at your service.
-1) Backup file
-2) Recover file
-3) Get files list
-4) Delete file from backup
-5) Exit
-"""
+
 
 if __name__ == '__main__':
     server_info_file = "server.info"
@@ -28,9 +19,22 @@ if __name__ == '__main__':
     while proceed_to_another_request:
         option = int(input(MENU))
 
+        if option == RequestMenu.BACKUP.value:
+            pass
+        elif option == RequestMenu.RECOVER.value:
+            pass
+        elif option == RequestMenu.GETLIST.value:
+            pass
+        elif option == RequestMenu.DELETION.value:
+            pass
+        elif option == RequestMenu.EXIT.value:
+            print("Bye Bye.")
+            proceed_to_another_request = False
+        else:
+            print("Illegal option, please try again.")
 
 
-    uid = randrange(1, ULONG_MAX)
+
 
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:

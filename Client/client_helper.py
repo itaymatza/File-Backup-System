@@ -1,4 +1,22 @@
-""" Client helper - functions related to client management"""
+""" Client helper - functions and data related to client management"""
+from enum import Enum
+
+MENU = """
+File-backup-system at your service.
+1) Backup file
+2) Recover file
+3) Get files list
+4) Delete file from backup
+5) Exit
+"""
+
+
+class RequestMenu(Enum):
+    BACKUP = 1
+    RECOVER = 2
+    DELETION = 3
+    GETLIST = 4
+    EXIT = 5
 
 
 # Reads server's ip address and port number from file.
