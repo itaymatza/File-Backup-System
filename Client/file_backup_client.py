@@ -42,6 +42,7 @@ if __name__ == '__main__':
             elif option == RequestMenu.RECOVER.value:
                 pass
 
+            # Get files list request
             elif option == RequestMenu.GETLIST.value:
                 list_request = encode_request(uid, CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)

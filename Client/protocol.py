@@ -88,8 +88,8 @@ def recv_all(sock, n):
     return data
 
 
+# Receive n bytes or return None if EOF is hit
 def recv_to_file(sock, n, file):
-    # Helper function to recv n bytes or return None if EOF is hit
     with open(file, 'wb') as f:
         while n != 0:
             packet = sock.recv(n)
