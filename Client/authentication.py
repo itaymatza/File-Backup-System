@@ -1,7 +1,19 @@
+USERNAME_LEN = 256
+
+
 def authenticate(sock):
-    name = input('ENTER USERNAME : ')
+    name = ''
+    is_valid_name = False
+
+    while not is_valid_name:
+        name = input('ENTER USERNAME: ')
+        if 0 < len(name) <= USERNAME_LEN:
+            is_valid_name = True
+        else:
+            print('Illegal name length.')
+
     sock.send(str.encode(name))
-    password = input('ENTER PASSWORD : ')
+    password = input('ENTER PASSWORD: ')
     sock.send(str.encode(password))
     ''' Response : Status of Connection :
     	1 : Registeration successful 

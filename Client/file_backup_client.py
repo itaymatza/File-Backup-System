@@ -38,15 +38,27 @@ if __name__ == '__main__':
 
             if option == RequestMenu.BACKUP.value:
                 pass
+
             elif option == RequestMenu.RECOVER.value:
                 pass
+
             elif option == RequestMenu.GETLIST.value:
-                pass
+                list_request = encode_request(uid, CLIENT_VERSION, 'GETLIST_REQUEST')
+                sock.sendall(list_request)
+                file_name, file = decode_server_response(sock, uid)
+                if file:
+                    print("Received file list - " + file_name.decode("utf-8") + '.')
+                    print(file)
+                else:
+                    print("Error: Unable to get files list from server.")
+
             elif option == RequestMenu.DELETION.value:
                 pass
+
             elif option == RequestMenu.EXIT.value:
                 print("Bye Bye.")
                 proceed_to_another_request = False
+
             else:
                 print("Illegal option, please try again.")
 

@@ -1,10 +1,14 @@
 import struct
 
-ULONG = '<L'  # unsigned 32-bit long
-ULONG_MAX = (2 ** (8 * 4)) - 1
-USHORT = '<H'  # unsigned 16-bit short
 UCHAR = '<B'  # unsigned 8-bit char
 UCHAR_MAX = (2 ** 8) - 1
+USHORT = '<H'  # unsigned 16-bit short
+USHORT_MAX = (2 ** (8 * 2))
+ULONG = '<L'  # unsigned 32-bit long
+ULONG_MAX = (2 ** (8 * 4)) - 1
+UNAME_LENGTH = '<256s'
+USERNAME_LEN = 256
+
 OP = {'BACKUP_REQUEST': 100,
       'RECOVER_REQUEST': 101,
       'DELETION_REQUEST': 102,
@@ -17,33 +21,39 @@ STATUS = {'RECOVER_SUCCESS': 210,
           'GENERAL_ERROR': 1003}
 
 
+def encode_request(uid, version, op, filename=None):
+    request = encode_request_header(uid, version, op, filename)
+    if op == 'BACKUP_REQUEST':
+        request += encode_request_payload(filename)
+    return request
+
+
 def encode_request_header(uid, version, op, filename=None):
-    # validate parameters
-    if uid <= 0 or uid > ULONG_MAX:
-        raise Exception(
-            'Failed to create request header - Invalid user id')
-    if version <= 0 or version > UCHAR_MAX:
-        raise Exception(
-            'Failed to create request header - Invalid version number')
+    # Validate parameters
+    if len(uid) <= 0 or USERNAME_LEN < len(uid):
+        raise Exception('Failed to create request header - Invalid username')
+    if version <= 0 or UCHAR_MAX < version:
+        raise Exception('Failed to create request header - Invalid version number')
     if op in OP:
         if op != 'GETLIST_REQUEST':
             if not filename:
-                raise Exception(
-                    'Failed to create request header - Missing filename')
+                raise Exception('Failed to create request header - Missing filename')
+            filename_len = len(filename.encode('utf-8'))
+            if filename_len <= 0 or USHORT_MAX < filename_len:
+                raise Exception('Failed to create request header - Missing filename size')
         op_number = OP.get(op)
     else:
-        raise Exception(
-            'Failed to create request header - Invalid op number')
+        raise Exception('Failed to create request header - Invalid op number')
 
-    # encode the request header
-    header = struct.pack(ULONG, uid)
+    # Encode the request header
+    header = struct.pack(UNAME_LENGTH, uid)
     header += struct.pack(UCHAR, version)
     header += struct.pack(UCHAR, op_number)
     if op != 'GETLIST_REQUEST':
-        name_len = len(filename.encode('utf-8'))
-        header += struct.pack(USHORT, name_len)
-        header += struct.pack('<' + str(name_len) + 's',
-                              filename.encode('utf-8'))
+        filename_len = len(filename.encode('utf-8'))
+        header += struct.pack(USHORT, filename_len)
+        filename_len = '<' + str(filename_len) + 's'  # filename_len format for struct
+        header += struct.pack(filename_len, filename.encode('utf-8'))
     return header
 
 
@@ -62,13 +72,6 @@ def encode_request_payload(filename):
     header = struct.pack(ULONG, payload_size)
     header += payload
     return header
-
-
-def encode_request(uid, version, op, filename=None):
-    request = encode_request_header(uid, version, op, filename)
-    if op == 'BACKUP_REQUEST':
-        request += encode_request_payload(filename)
-    return request
 
 
 def recv_all(sock, n):
