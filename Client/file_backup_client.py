@@ -46,10 +46,10 @@ if __name__ == '__main__':
             elif option == RequestMenu.GETLIST.value:
                 list_request = encode_request(uid, CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)
-                file_name, file = decode_server_response(sock, uid)
-                if file:
-                    print("Received file list - " + file_name.decode("utf-8") + '.')
-                    print(file)
+                files_list, success = decode_server_response(sock, uid)
+                if success:
+                    print("Received files list for" + uid + ':')
+                    print(files_list)
                 else:
                     print("Error: Unable to get files list from server.")
 
