@@ -49,7 +49,11 @@ def encode_request_header(uid, version, op, filename=None):
     header = struct.pack(UNAME_LENGTH, uid)
     header += struct.pack(UCHAR, version)
     header += struct.pack(UCHAR, op_number)
+<<<<<<< HEAD
     if op != 'GETLIST_REQUEST':
+=======
+    if op != 'GETLIST_REQUEST':  # getlist request have no filename filed
+>>>>>>> Done protocol header for client
         filename_len = len(filename.encode('utf-8'))
         header += struct.pack(USHORT, filename_len)
         filename_len = '<' + str(filename_len) + 's'  # filename_len format for struct
