@@ -18,8 +18,8 @@ Install OpenSSL for certificate generating:
 2) Run OpenSSL Installer and install OpenSSL.
 3) Open a Command Prompt (CMD) as Administrator.
 4) Use the following commands to set the environment variables to function OpenSSL properly on your system:
-
 set OPENSSL_CONF=C:\OpenSSL-Installation-Path\bin\openssl.cfg
+
 set Path=%Path%;C:\OpenSSL-Installation-Path\bin
 
 Create server certificate:
