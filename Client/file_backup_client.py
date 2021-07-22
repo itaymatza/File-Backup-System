@@ -36,9 +36,11 @@ if __name__ == '__main__':
         while proceed_to_another_request:
             option = int(input(MENU))
 
+            # Backup file request
             if option == RequestMenu.BACKUP.value:
                 pass
 
+            # Recover file request
             elif option == RequestMenu.RECOVER.value:
                 pass
 
@@ -48,11 +50,12 @@ if __name__ == '__main__':
                 sock.sendall(list_request)
                 files_list, success = decode_server_response(sock, uid)
                 if success:
-                    print("Received files list for" + uid + ':')
+                    print("Received files list for " + uid + ':')
                     print(files_list)
                 else:
                     print("Error: Unable to get files list from server.")
 
+            # Delete file from server request
             elif option == RequestMenu.DELETION.value:
                 pass
 
