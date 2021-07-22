@@ -10,13 +10,13 @@ import protocol
 import threading
 import database
 import server_helper
+from Server.authentication import authenticate_user
 
 SERVER_VERSION = 1
 UID_LEN = 16
 
 
-def request_handler(conn, lock):
-    db = database.DataBase()
+def request_handler(conn, lock, db):
     request = protocol.Request()
     response = protocol.Response(SERVER_VERSION)
 
@@ -62,6 +62,7 @@ if __name__ == '__main__':
     server_cert = 'server.crt'
     server_key = 'server.key'
     client_certs = 'client.crt'
+    DB = database.DataBase()
 
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
@@ -74,16 +75,19 @@ if __name__ == '__main__':
             sock.listen(100)
             thread_lock = threading.Lock()
             while True:
-                print("Waiting for client")
+                print("Waiting for client..")
                 sock_conn, address_and_port = sock.accept()
                 print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
-                conn = context.wrap_socket(sock_conn, server_side=True)
-                print("SSL established. Peer: {}".format(conn.getpeercert()))
-
-                # TO DO - Add user authentication check
-                client_thread = threading.Thread(target=request_handler, args=(conn, thread_lock))
-                client_thread.start()
-                conn.shutdown(socket.SHUT_RDWR)
-                conn.close()
+                connection = context.wrap_socket(sock_conn, server_side=True)
+                print("SSL established. Peer: {}".format(connection.getpeercert()))
+                is_authenticated = authenticate_user(connection, DB)
+                if is_authenticated:
+                    client_thread = threading.Thread(target=request_handler, args=(connection, thread_lock, DB))
+                    client_thread.start()
+                else:
+                    # TODO: Return error status.
+                    pass
+                connection.shutdown(socket.SHUT_RDWR)
+                connection.close()
     except Exception as error:
         print('Error: %s' % error)

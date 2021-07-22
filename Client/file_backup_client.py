@@ -8,7 +8,7 @@ receives response from the server and output status for the client.
 import socket
 import ssl
 
-from Client.authentication import authenticate
+from Client.authentication import authenticate_user
 from Client.client_helper import MENU, get_server_ip_and_port, RequestMenu
 from protocol import encode_request, decode_server_response
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
         sock.connect((server_ip, server_port))  # connect to backupserver
-        uid = authenticate(sock)
+        uid = authenticate_user(sock)
 
         proceed_to_another_request = True
         while proceed_to_another_request:

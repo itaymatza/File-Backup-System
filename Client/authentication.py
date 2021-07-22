@@ -1,7 +1,7 @@
 USERNAME_LEN = 256
 
 
-def authenticate(sock):
+def authenticate_user(sock):
     name = ''
     is_valid_name = False
 
