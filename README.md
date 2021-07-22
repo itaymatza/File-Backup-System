@@ -23,6 +23,13 @@ set OPENSSL_CONF=C:\OpenSSL-Installation-Path\bin\openssl.cfg
 
 set Path=%Path%;C:\OpenSSL-Installation-Path\bin
 
-Create server certificate:
+From the same opened CMD:
+1) Use cd command and nevigate to your certificate dirctory.
+2) Create server certificate by runnig the command:
+openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout server.key -out server.crt
+#Fill your server detailes.
+3) Create client certificate by runnig the command:
+openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout client.key -out client.crt
+#Fill your client detailes.
 
 
