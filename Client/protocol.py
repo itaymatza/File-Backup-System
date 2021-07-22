@@ -31,7 +31,7 @@ def encode_request(uid, version, op, filename=None):
 
 # Encode client request header according to the protocol spec
 def encode_request_header(uid, version, op, filename=None):
-    # Validate parameters
+    # validate parameters
     if len(uid) <= 0 or USERNAME_LEN < len(uid):
         raise Exception('Failed to create request header - Invalid username')
     if version <= 0 or UCHAR_MAX < version:
@@ -47,7 +47,7 @@ def encode_request_header(uid, version, op, filename=None):
     else:
         raise Exception('Failed to create request header - Invalid op number')
 
-    # Encode the request header
+    # encode the request header
     header = struct.pack(UNAME_LENGTH, uid)
     header += struct.pack(UCHAR, version)
     header += struct.pack(UCHAR, op_number)
@@ -77,6 +77,45 @@ def encode_request_payload(filename):
     return payload
 
 
+# Decode server response according to the protocol spec
+# Returns tuple - (date,is_success_status)
+def decode_server_response(sock, uid):
+    # pars header - receive version and status bytes
+    srv_version = struct.unpack('<B', sock.recv(1))
+    request_status = struct.unpack('<H', sock.recv(2))
+
+    # error status
+    if request_status in {STATUS.get('EMPTY_FILE_LIST_ERROR'), STATUS.get('GENERAL_ERROR')}:
+        error_msg = "Unable to get file list from the server - \n"
+        if request_status == STATUS.get('EMPTY_FILE_LIST_ERROR'):
+            error_msg += "There are no files for user " + str(uid) + "."
+        else:
+            error_msg += "General error - problem with the server."
+        return error_msg, False
+
+    # filename header decode
+    filename_len = sock.recv(2)
+    received_filename_len, = struct.unpack('<H', filename_len)
+    filename = recv_all(sock, received_filename_len)
+    received_filename, = struct.unpack('<' + str(received_filename_len) + 's', filename)
+
+    if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
+        return received_filename, False
+    elif request_status == STATUS.get('BACKUP_OR_DELETE_SUCCESS'):
+        return received_filename, True
+
+    # response with payload
+    elif request_status in {STATUS.get('RECOVER_SUCCESS'), STATUS.get('SENT_LIST_SUCCESSFULLY')}:
+        received_data = sock.recv(4)
+        received_file_len, = struct.unpack('<L', received_data)
+        if request_status == STATUS.get('RECOVER_SUCCESS'):
+            recv_to_file(sock, received_file_len, 'tmp')
+            return received_filename, True
+        else:  # SENT_LIST_SUCCESSFULLY
+            files_list = b"" + recv_all(sock, received_file_len)
+            return files_list, True
+
+
 def recv_all(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit
     data = bytearray()
@@ -99,43 +138,3 @@ def recv_to_file(sock, n, file):
                 return
             f.write(packet)
             n -= len(packet)
-
-
-def decode_server_response(sock, uid):
-    # pars header - receive version and status bytes
-    received = sock.recv(3)
-    srv_version, request_status = struct.unpack('<BH', received)
-
-    # error status
-    if request_status in {STATUS.get('EMPTY_FILE_LIST_ERROR'),
-                          STATUS.get('GENERAL_ERROR')}:
-        error_msg = "Unable to get file list from the server - \n"
-        if request_status == STATUS.get('EMPTY_FILE_LIST_ERROR'):
-            error_msg += "There are no files for user " + str(uid) + "."
-        else:
-            error_msg += "General error - problem with the server."
-        return error_msg, False
-
-    # filename header decode
-    received = sock.recv(2)
-    received_filename_len, = struct.unpack('<H', received)
-    received = recv_all(sock, received_filename_len)
-    received_filename, = struct.unpack('<' + str(received_filename_len) + 's',
-                                       received)
-
-    if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
-        return received_filename, False
-    elif request_status == STATUS.get('BACKUP_OR_DELETE_SUCCESS'):
-        return received_filename, True
-    elif request_status in {STATUS.get('RECOVER_SUCCESS'),
-                            STATUS.get('SENT_LIST_SUCCESSFULLY')}:
-        received = sock.recv(4)
-        received_file_len, = struct.unpack('<L', received)
-        if request_status == STATUS.get('RECOVER_SUCCESS'):
-            recv_to_file(sock, received_file_len, 'tmp')
-            return received_filename, True
-        else:  # SENT_LIST_SUCCESSFULLY
-            received = recv_all(sock, received_file_len)
-            received_file = b""
-            received_file += received
-            return received_filename, received_file
