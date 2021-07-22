@@ -10,6 +10,7 @@ class RequestCode(Enum):
     DELETION_REQUEST = 102
     GETLIST_REQUEST = 103
 
+    # check if given value code is part of the Enum
     @classmethod
     def is_valid(cls, value):
         return value in cls._value2member_map_
@@ -20,22 +21,18 @@ class Request:
         self.header = RequestHeader()
         self.payload = None
 
-    def set_suitable_payload(self):
-        if self.header.code is not None:
-            if self.header.code == RequestCode.REGISTER_REQUEST.value:
-                self.payload = RegisterRequestPayload()
-            elif self.header.code == RequestCode.PUBLIC_KEY_REQUEST.value:
-                self.payload = PublicKeyRequestPayload()
-            elif self.header.code == RequestCode.PUSH_MESSAGE_REQUEST.value:
-                self.payload = MessagePayload()
+    def set_payload(self):
+        if self.header.code == RequestCode.BACKUP_REQUEST.value:
+            self.payload = RequestPayload()
 
 
 class RequestHeader:
     def __init__(self):
+        self.client_id = None
         self.version = None
         self.code = None
-        self.payload_size = None
-        self.client_id = None
+        self.filename_len = None
+        self.filename = None
 
     @property
     def client_id(self):
@@ -70,6 +67,28 @@ class RequestHeader:
             self._code = GENERAL_ERROR
 
     @property
+    def filename_len(self):
+        return self._filename_len
+
+    @filename_len.setter
+    def filename_len(self, filename_len):
+        self._filename_len = filename_len
+
+    @property
+    def filename(self):
+        return self.filename
+
+    @filename.setter
+    def filename(self, filename):
+        self._filename = filename
+
+
+class RequestPayload:
+    def __init__(self):
+        self.payload_size = None
+        self.payload = None
+
+    @property
     def payload_size(self):
         return self._payload_size
 
@@ -77,81 +96,10 @@ class RequestHeader:
     def payload_size(self, payload_size):
         self._payload_size = payload_size
 
-
-class RequestPayload:
-    pass
-
-
-class RegisterRequestPayload(RequestPayload):
-    def __init__(self):
-        self.name = None
-        self.public_key = None
-
     @property
-    def name(self):
-        return self._name.split(b'\0', 1)[0].decode("utf-8")
+    def payload(self):
+        return self.payload
 
-    @name.setter
-    def name(self, name):
-        self._name = name
-
-    @property
-    def public_key(self):
-        return self._public_key
-
-    @public_key.setter
-    def public_key(self, key):
-        self._public_key = key
-
-
-class PublicKeyRequestPayload(RequestPayload):
-    def __init__(self):
-        self.client_id = None
-
-    @property
-    def client_id(self):
-        return self._client_id
-
-    @client_id.setter
-    def client_id(self, client_id):
-        self._client_id = client_id
-
-
-class MessagePayload(RequestPayload):
-    def __init__(self):
-        self.client_id = None
-        self.message_type = None
-        self.content_size = None
-        self.message_content = None
-
-    @property
-    def client_id(self):
-        return self._client_id
-
-    @client_id.setter
-    def client_id(self, client_id):
-        self._client_id = client_id
-
-    @property
-    def message_type(self):
-        return self._message_type
-
-    @message_type.setter
-    def message_type(self, message_type):
-        self._message_type = message_type
-
-    @property
-    def content_size(self):
-        return self._content_size
-
-    @content_size.setter
-    def content_size(self, content_size):
-        self._content_size = content_size
-
-    @property
-    def message_content(self):
-        return self._message_content
-
-    @message_content.setter
-    def message_content(self, message_content):
-        self._message_content = message_content
+    @payload.setter
+    def payload(self, payload):
+        self._payload = payload

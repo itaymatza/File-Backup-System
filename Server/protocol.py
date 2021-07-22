@@ -35,7 +35,7 @@ def recv_all(sock, n):
 def encode_server_response(response):
     encoded_response = struct.pack(UCHAR, response.header.version)
     encoded_response += struct.pack(USHORT, response.header.code)
-    encoded_response += struct.pack(ULONG, response.header.payload_size)
+    encoded_response += struct.pack(ULONG, response.header.filename_len)
     if response.header.code == ResponseCode.REGISTERED_SUCCESSFULLY.value:
         encoded_response += struct.pack(CLIENT_ID_LENGTH, response.payload.client_id)
     elif response.header.code == ResponseCode.CLIENTS_LIST.value:
@@ -64,14 +64,14 @@ def recv_and_decode_client_request(conn, db, request, uid):
     request.header.client_id, = struct.unpack(CLIENT_ID_LENGTH, uid)
     request.header.version, = struct.unpack(UCHAR, conn.recv(1))
     request.header.code, = struct.unpack(UCHAR, conn.recv(1))
-    request.header.payload_size, = struct.unpack(ULONG, conn.recv(4))
+    request.header.filename_len, = struct.unpack(ULONG, conn.recv(4))
 
     # validate request header
     if None in {request.header.client_id, request.header.version, request.header.code}:
         request.header.code = ResponseCode.GENERAL_ERROR.value
 
     # validate request payload
-    request.set_suitable_payload()
+    request.set_payload()
     if request.header.code == RequestCode.REGISTER_REQUEST.value:
         request.payload.name, = struct.unpack(USERNAME_LENGTH, conn.recv(255))
         request.payload.public_key, = struct.unpack(KEY_LENGTH, conn.recv(160))

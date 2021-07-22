@@ -13,12 +13,12 @@ OP = {'BACKUP_REQUEST': 100,
       'RECOVER_REQUEST': 101,
       'DELETION_REQUEST': 102,
       'GETLIST_REQUEST': 103}
-STATUS = {'RECOVER_SUCCESS': 210,
-          'SENT_LIST_SUCCESSFULLY': 211,
-          'BACKUP_OR_DELETE_SUCCESS': 212,
-          'UNKNOWN_FILE_ERROR': 1001,
-          'EMPTY_FILE_LIST_ERROR': 1002,
-          'GENERAL_ERROR': 1003}
+STATUS = {'RECOVER_SUCCESS': 200,
+          'SENT_LIST_SUCCESSFULLY': 201,
+          'BACKUP_OR_DELETE_SUCCESS': 202,
+          'UNKNOWN_FILE_ERROR': 1000,
+          'EMPTY_FILE_LIST_ERROR': 1001,
+          'GENERAL_ERROR': 1002}
 
 
 # Encode client request according to the protocol spec

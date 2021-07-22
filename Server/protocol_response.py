@@ -4,18 +4,20 @@ from enum import Enum
 
 
 class ResponseCode(Enum):
-    REGISTERED_SUCCESSFULLY = 1000
-    CLIENTS_LIST = 1001
-    PUBLIC_KEY = 1002
-    PUSH_MESSAGE = 1003
-    PULL_MESSAGES = 1004
-    GENERAL_ERROR = 9000
+    RECOVER_SUCCESS = 200
+    SENT_LIST_SUCCESSFULLY = 201
+    BACKUP_OR_DELETE_SUCCESS = 202
+    UNKNOWN_FILE_ERROR = 1000
+    EMPTY_FILE_LIST_ERROR = 1001
+    GENERAL_ERROR = 1002
 
+    # check if given value code is part of the Enum
     @classmethod
     def is_valid(cls, value):
         return value in cls._value2member_map_
 
 
+# TODO handle error messages
 class Response:
     def __init__(self, srv_version=None):
         self.header = ResponseHeader(srv_version)
@@ -23,8 +25,6 @@ class Response:
 
     def set_general_error(self):
         self.header.code = ResponseCode.GENERAL_ERROR.value
-        self.header.payload_size = 0
-        self.payload = None
 
     def set_registered_successfully(self, uid):
         self.header.code = ResponseCode.REGISTERED_SUCCESSFULLY.value
@@ -58,7 +58,8 @@ class ResponseHeader:
     def __init__(self, srv_version=None):
         self.version = srv_version
         self.code = None
-        self.payload_size = None
+        self.filename_len = None
+        self.filename = None
 
     @property
     def version(self):
@@ -80,12 +81,20 @@ class ResponseHeader:
             self._code = code
 
     @property
-    def payload_size(self):
-        return self._payload_size
+    def filename_len(self):
+        return self._filename_len
 
-    @payload_size.setter
-    def payload_size(self, payload_size):
-        self._payload_size = payload_size
+    @filename_len.setter
+    def filename_len(self, filename_len):
+        self._filename_len = filename_len
+
+    @property
+    def filename(self):
+        return self.filename
+
+    @filename.setter
+    def filename(self, filename):
+        self._filename = filename
 
 
 class ResponsePayload:
@@ -159,7 +168,7 @@ class PullMassagesPayload:
         self.messages = []
         for client_id, message_id, message_type, message_content in messages:
             uid = uuid.UUID(client_id.decode('utf-8'))
-            header.payload_size += len(message_content)
+            header.filename_len += len(message_content)
             self.messages.append(MessagePayloadPart(
                 uid.bytes, message_id, message_type, message_content))
 
