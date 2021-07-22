@@ -38,18 +38,32 @@ if __name__ == '__main__':
 
             # Backup file request
             if option == RequestMenu.BACKUP.value:
-                pass
+                file_to_backup = input("Please enter the path for the file to backup: ")
+                file_backup_request = encode_request(uid, CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
+                sock.sendall(file_backup_request)
+                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                if is_succeeded_status:
+                    print("Successfully backup file " + file_name.decode("utf-8") + '.')
+                else:
+                    print("Unable to backup file - " + file_name.decode("utf-8") + '.')
 
             # Recover file request
             elif option == RequestMenu.RECOVER.value:
-                pass
+                file_to_recover = input("Please enter file name to recover: ")
+                file_recover_request = encode_request(uid, CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
+                sock.sendall(file_recover_request)
+                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                if is_succeeded_status:
+                    print("Recovered file - " + file_name.decode("utf-8") + '.')
+                else:
+                    print("File " + file_name.decode("utf-8") + ' is not exists in the server.')
 
             # Get files list request
             elif option == RequestMenu.GETLIST.value:
                 list_request = encode_request(uid, CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)
-                files_list, success = decode_server_response(sock, uid)
-                if success:
+                files_list, is_succeeded_status = decode_server_response(sock, uid)
+                if is_succeeded_status:
                     print("Received files list for " + uid + ':')
                     print(files_list)
                 else:
@@ -57,15 +71,21 @@ if __name__ == '__main__':
 
             # Delete file from server request
             elif option == RequestMenu.DELETION.value:
-                pass
+                file_to_delete = input("Please enter file name to delete from the server: ")
+                file_delete_request = encode_request(uid, CLIENT_VERSION, 'DELETION_REQUEST', file_to_delete)
+                sock.sendall(file_delete_request)
+                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                if is_succeeded_status:
+                    print("Deletion succeed of file " + file_name.decode("utf-8") + '.')
+                else:
+                    print("Unable to delete file - " + file_name.decode("utf-8") + '.')
 
             elif option == RequestMenu.EXIT.value:
                 print("Bye Bye.")
                 proceed_to_another_request = False
-
+                
             else:
                 print("Illegal option, please try again.")
-
         print("Closing connection")
         sock.close()
     except OSError as exception:
