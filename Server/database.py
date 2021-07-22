@@ -6,13 +6,13 @@ DATABASE = 'server.db'
 
 sql_create_clients_table = """ CREATE TABLE IF NOT EXISTS clients( 
                                 ID varchar(16) NOT NULL PRIMARY KEY, 
-                                Name varchar(255), 
-                                Password varchar(160)
+                                Name varchar(256), 
+                                Password varchar(64)
                                 ); """
 sql_create_files_table = """ CREATE TABLE IF NOT EXISTS files( 
                                 ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                                 OwnerID varchar(16),
-                                NameFile varchar(255),
+                                FileName varchar(255),
                                 Content Blob)
                                 ); """
 
@@ -60,7 +60,7 @@ class DataBase:
         """
         # Add new file to files table and return the index of the file.
         """
-        self.cursor.execute("INSERT INTO files(OwnerID, NameFile, Content) VALUES (?, ?, ?)", (client_id, file_name, file_content))
+        self.cursor.execute("INSERT INTO files(OwnerID, FileName, Content) VALUES (?, ?, ?)", (client_id, file_name, file_content))
         self.db.commit()
 
         self.cursor.execute("""SELECT last_insert_rowid()""")
@@ -70,7 +70,7 @@ class DataBase:
         """
         Delete file from files table
         """
-        self.db.execute("DELETE FROM files WHERE Owner = ? and NameFile = ?", (client_id, file_name))
+        self.db.execute("DELETE FROM files WHERE Owner = ? and FileName = ?", (client_id, file_name))
         self.db.commit()
 
     # .
@@ -78,7 +78,7 @@ class DataBase:
         """
         Pull file from files table
         """
-        self.cursor.execute("SELECT Content FROM files WHERE Owner = ? and NameFile = ?", (client_id, file_name))
+        self.cursor.execute("SELECT Content FROM files WHERE Owner = ? and FileName = ?", (client_id, file_name))
         return self.cursor.fetchall()
 
     # Get files list owned by client.
@@ -86,7 +86,7 @@ class DataBase:
         """
         Get files list owned by client
         """
-        self.cursor.execute("SELECT NameFile FROM files WHERE Owner = ?", (client_id,))
+        self.cursor.execute("SELECT FileName FROM files WHERE Owner = ?", (client_id,))
         return self.cursor.fetchall()
 
     def __del__(self):
