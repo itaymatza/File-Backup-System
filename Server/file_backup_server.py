@@ -5,6 +5,7 @@ the service and allow them to backup and restore files.
 
 """
 import socket
+import ssl
 import protocol
 import threading
 import database
@@ -58,18 +59,31 @@ if __name__ == '__main__':
     TCP_IP = ''
     PORT_FILE = 'port.info'
     TCP_PORT = server_helper.get_tcp_port(PORT_FILE)
+    server_cert = 'server.crt'
+    server_key = 'server.key'
+    client_certs = 'client.crt'
+
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_cert_chain(certfile=server_cert, keyfile=server_key)
+    context.load_verify_locations(cafile=client_certs)
 
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        with socket.socket() as sock:
             sock.bind((TCP_IP, TCP_PORT))
+            sock.listen(100)
             thread_lock = threading.Lock()
             while True:
-                sock.listen(100)
+                print("Waiting for client")
                 sock_conn, address_and_port = sock.accept()
-                # TO DO - Add SSL
+                print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
+                conn = context.wrap_socket(sock_conn, server_side=True)
+                print("SSL established. Peer: {}".format(conn.getpeercert()))
+
                 # TO DO - Add user authentication check
-                client_thread = threading.Thread(target=request_handler,
-                                                 args=(sock_conn, thread_lock))
+                client_thread = threading.Thread(target=request_handler, args=(conn, thread_lock))
                 client_thread.start()
+                conn.shutdown(socket.SHUT_RDWR)
+                conn.close()
     except Exception as error:
         print('Error: %s' % error)
