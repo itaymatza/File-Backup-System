@@ -1,6 +1,6 @@
 # File-backup-system
 
-# Note: In this redme doc, we are referring to Windows environment.
+Note: In this redme doc, we are referring to Windows environment.
 
 Installation
 ------------
