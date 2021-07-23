@@ -4,16 +4,16 @@ import sqlite3
 
 DATABASE = 'server.db'
 
-sql_create_clients_table = """ CREATE TABLE IF NOT EXISTS clients( 
-                                ID varchar(16) NOT NULL PRIMARY KEY, 
+sql_create_clients_table = """CREATE TABLE IF NOT EXISTS clients( 
+                                ID varchar(16) PRIMARY KEY, 
                                 Name varchar(256), 
                                 Password varchar(64)
                                 ); """
 sql_create_files_table = """ CREATE TABLE IF NOT EXISTS files( 
-                                ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                                 OwnerID varchar(16),
                                 FileName varchar(255),
-                                Content Blob)
+                                Content Blob
                                 ); """
 
 
@@ -43,8 +43,10 @@ class DataBase:
         Initials the database
         """
         if self.db is not None:
+            #self.create_table("DROP TABLE clients")
+            #self.create_table("DROP TABLE files")
             self.create_table(sql_create_clients_table)  # create clients table
-            self.create_table(sql_create_files_table)  # create messages table
+            self.create_table(sql_create_files_table)  # create files table
             self.db.commit()
         else:
             print("Error! cannot create the database connection.")
@@ -66,27 +68,32 @@ class DataBase:
         self.cursor.execute("""SELECT last_insert_rowid()""")
         return self.cursor.fetchall()[0][0]
 
+    def pull_password(self, client_id):
+        """
+        Pull password from clients table
+        """
+        self.cursor.execute("SELECT Password FROM clients WHERE ID = ?", (client_id,))
+        return self.cursor.fetchall()[0][0]
+
     def delete_file(self, client_id, file_name):
         """
         Delete file from files table
         """
-        self.db.execute("DELETE FROM files WHERE Owner = ? and FileName = ?", (client_id, file_name))
+        self.db.execute("DELETE FROM files WHERE OwnerID = ? and FileName = ?", (client_id, file_name))
         self.db.commit()
 
-    # .
     def pull_file(self, client_id, file_name):
         """
         Pull file from files table
         """
-        self.cursor.execute("SELECT Content FROM files WHERE Owner = ? and FileName = ?", (client_id, file_name))
-        return self.cursor.fetchall()
+        self.cursor.execute("SELECT Content FROM files WHERE OwnerID = ? and FileName = ?", (client_id, file_name))
+        return self.cursor.fetchall()[0][0]
 
-    # Get files list owned by client.
     def get_files_list(self, client_id):
         """
         Get files list owned by client
         """
-        self.cursor.execute("SELECT FileName FROM files WHERE Owner = ?", (client_id,))
+        self.cursor.execute("SELECT FileName FROM files WHERE OwnerID = ?", (client_id,))
         return self.cursor.fetchall()
 
     def __del__(self):
@@ -96,7 +103,7 @@ class DataBase:
         self.cursor.close()
         self.db.close()
 
-    def is_client_exists(self, name):
+    def is_client_name_exists(self, name):
         """
         Return true if username is already exists in clients table
         """
@@ -104,25 +111,54 @@ class DataBase:
         s = self.cursor.fetchone()
         return True if s else False
 
+    def is_client_id_exists(self, client_id):
+        """
+        Return true if client id is already exists in clients table
+        """
+        self.cursor.execute("SELECT COUNT(*) FROM clients WHERE ID = ? ", (client_id,))
+        s = self.cursor.fetchone()
+        return True if s else False
+
+    def print_table_clients(self):
+        self.cursor.execute("SELECT * FROM clients")
+        return self.cursor.fetchall()
+
+    def print_table_files(self):
+        self.cursor.execute("SELECT * FROM files")
+        return self.cursor.fetchall()
+
     """
     not in use
     """
 
-    # Check if given ID is already exists in clients table.
-    def is_id_exists(self, uid):
-        _uid = uuid.UUID(bytes=uid)
-        self.cursor.execute("""
-            SELECT COUNT(*)
-            FROM clients
-            WHERE ID = '{0}'
-            """.format(_uid))
-        if self.cursor.fetchone()[0] != 0:
-            return True
-        return False
-
     # Generates new uuid and make sure is not already in clients table.
     def _get_new_uuid(self):
         _uid = uuid.uuid4()
-        while self.is_id_exists(_uid.bytes):
+        while self.is_client_id_exists(_uid.bytes):
             _uid = uuid.uuid4()
         return _uid
+
+
+def test():
+    db = DataBase()
+    _uid1 = uuid.uuid4()
+    _uid2 = uuid.uuid4()
+    db.insert_new_client_to_the_table(_uid1, "sapir2", "123789")
+    db.insert_new_client_to_the_table(_uid2, "sapir3", "123456")
+    db.insert_new_file_to_the_table(_uid1,"lol","aaaaaaaa")
+
+    print(db.print_table_clients())
+    print(db.print_table_files())
+
+    print(db.is_client_name_exists("sapir2"))
+    print(db.is_client_id_exists(_uid2))
+    print(db.pull_password(_uid1))
+    print(db.pull_file(_uid1, "lol"))
+
+    db.delete_file(_uid1, "lol")
+
+    print(db.print_table_clients())
+    print(db.print_table_files())
+
+
+test()
