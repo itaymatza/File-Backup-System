@@ -70,20 +70,20 @@ if __name__ == '__main__':
     context.load_verify_locations(cafile=client_certs)
 
     try:
-        with socket.socket() as sock:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind((TCP_IP, TCP_PORT))
             sock.listen(100)
             thread_lock = threading.Lock()
             while True:
-                print("Waiting for client..")
                 sock_conn, address_and_port = sock.accept()
                 print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
                 connection = context.wrap_socket(sock_conn, server_side=True)
                 print("SSL established. Peer: {}".format(connection.getpeercert()))
                 is_authenticated = authenticate_user(connection, DB)
                 if is_authenticated:
-                    client_thread = threading.Thread(target=request_handler, args=(connection, thread_lock, DB))
-                    client_thread.start()
+                    # client_thread = threading.Thread(target=request_handler, args=(connection, thread_lock, DB))
+                    # client_thread.start()
+                    request_handler(connection, thread_lock, DB)
                 else:
                     # TODO: Return error status.
                     pass

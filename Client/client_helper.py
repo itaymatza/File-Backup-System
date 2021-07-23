@@ -14,8 +14,8 @@ File-backup-system at your service.
 class RequestMenu(Enum):
     BACKUP = 1
     RECOVER = 2
-    DELETION = 3
-    GETLIST = 4
+    GETLIST = 3
+    DELETION = 4
     EXIT = 5
 
 
