@@ -10,6 +10,7 @@ Configuration files
 -------------------
 Server:
 - port.info
+
 Client:
 - server.info
 
