@@ -1,7 +1,7 @@
 """ Request """
 from enum import Enum
 
-GENERAL_ERROR = 9000
+GENERAL_ERROR = 1002
 
 
 class RequestCode(Enum):
@@ -20,10 +20,6 @@ class Request:
     def __init__(self):
         self.header = RequestHeader()
         self.payload = None
-
-    def set_payload(self):
-        if self.header.code == RequestCode.BACKUP_REQUEST.value:
-            self.payload = RequestPayload()
 
 
 class RequestHeader:
@@ -89,7 +85,7 @@ class RequestPayload:
 
     @property
     def payload(self):
-        return self.payload
+        return self._payload
 
     @payload.setter
     def payload(self, payload):

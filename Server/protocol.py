@@ -24,7 +24,7 @@ def recv_and_decode_client_request(conn, db, request, version):
     # decode request header
     request.header.version, = struct.unpack(UCHAR, version)
     request.header.code, = struct.unpack(UCHAR, conn.recv(1))
-    request.header.filename_len, = struct.unpack(USHORT, conn.recv(4))
+    request.header.filename_len, = struct.unpack(USHORT, conn.recv(2))
     filename_len = '<' + str(request.header.filename_len) + 's'  # filename_len format for struct
     request.header.filename, = struct.unpack(filename_len, conn.recv(request.header.filename_len))
 
@@ -32,37 +32,13 @@ def recv_and_decode_client_request(conn, db, request, version):
     if None in {request.header.version, request.header.code}:
         request.header.code = ResponseCode.GENERAL_ERROR.value
 
-    # validate request payload
-    request.set_payload()
-    if request.header.code == RequestCode.REGISTER_REQUEST.value:
-        request.payload.name, = struct.unpack(UNAME_LENGTH, conn.recv(255))
-        request.payload.public_key, = struct.unpack(KEY_LENGTH, conn.recv(160))
-        return request.header.code
-
-    elif request.header.code == RequestCode.PUBLIC_KEY_REQUEST.value:
-        request.payload.client_id, = struct.unpack(UNAME_LENGTH, conn.recv(16))
-        if not db.is_id_exists(request.payload.client_id):
-            request.header.code = ResponseCode.GENERAL_ERROR.value
-
-    elif request.header.code == RequestCode.PUSH_MESSAGE_REQUEST.value:
-        request.payload.client_id, = struct.unpack(UNAME_LENGTH, conn.recv(16))
-        request.payload.message_type, = struct.unpack(UCHAR, conn.recv(1))
-        request.payload.content_size, = struct.unpack(ULONG, conn.recv(4))
-        received = _recv_all(conn, request.payload.content_size)
-        content_size = '<' + str(request.payload.content_size) + 's'
-        request.payload.message_content, = struct.unpack(content_size, received)
-        if not db.is_id_exists(request.payload.client_id):
-            request.header.code = ResponseCode.GENERAL_ERROR.value
-
-    # unknown request code
-    else:
-        if request.header.code not in {RequestCode.CLIENTS_LIST_REQUEST.value,
-                                       RequestCode.PULL_MESSAGES_REQUEST.value}:
-            request.header.code = ResponseCode.GENERAL_ERROR.value
-
-    # validations
-    if not db.is_id_exists(request.header.client_id):
-        request.header.code = ResponseCode.GENERAL_ERROR.value
+    # request payload for backup request
+    if request.header.code == RequestCode.BACKUP_REQUEST.value:
+        request.payload = request.RequestPayload()
+        request.payload.payload_size, = struct.unpack(ULONG, conn.recv(4))
+        payload_received = _recv_all(conn, request.payload.payload_size)
+        payload_size = '<' + str(request.payload.payload_size) + 's'
+        request.payload.payload, = struct.unpack(payload_size, payload_received)
 
     return request.header.code
 

@@ -16,7 +16,7 @@ SERVER_VERSION = 1
 VERSION_LEN = 1
 
 
-def request_handler(conn, lock, db):
+def request_handler(conn, uid, lock, db):
     request = protocol.Request()
     response = protocol.Response(SERVER_VERSION)
 
@@ -79,11 +79,11 @@ if __name__ == '__main__':
                 print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
                 connection = context.wrap_socket(sock_conn, server_side=True)
                 print("SSL established. Peer: {}".format(connection.getpeercert()))
-                is_authenticated = authenticate_user(connection, DB)
+                is_authenticated, uid = authenticate_user(connection, DB)
                 if is_authenticated:
-                    # client_thread = threading.Thread(target=request_handler, args=(connection, thread_lock, DB))
+                    # client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
                     # client_thread.start()
-                    request_handler(connection, thread_lock, DB)
+                    request_handler(connection, uid, thread_lock, DB)
                 else:
                     # TODO: Return error status.
                     pass
