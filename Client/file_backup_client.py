@@ -33,7 +33,8 @@ if __name__ == '__main__':
 
         proceed_to_another_request = True
         while proceed_to_another_request:
-            try:  # Gets input from user
+            # Gets input from user
+            try:
                 option = int(input(MENU))
             except Exception as exception:
                 print(exception)
