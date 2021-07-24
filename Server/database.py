@@ -73,7 +73,7 @@ class DataBase:
         Pull password from clients table
         """
         self.cursor.execute("SELECT Password FROM clients WHERE ID = ?", (client_id,))
-        return self.cursor.fetchall()[0][0]
+        return self.cursor.fetchall()[0][0].decode('utf-8')
 
     def delete_file(self, client_id, file_name):
         """
@@ -109,7 +109,14 @@ class DataBase:
         """
         self.cursor.execute("SELECT COUNT(*) FROM clients WHERE Name = ? ", (name,))
         s = self.cursor.fetchone()
-        return True if s else False
+        return True if s[0] > 0 else False
+
+    def get_client_uid(self, name):
+        """
+        Returns client's uid
+        """
+        self.cursor.execute("SELECT ID FROM clients WHERE Name = ? ", (name,))
+        return self.cursor.fetchall()[0][0]
 
     def is_client_id_exists(self, client_id):
         """
