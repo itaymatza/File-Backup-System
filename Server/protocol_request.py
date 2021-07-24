@@ -28,19 +28,10 @@ class Request:
 
 class RequestHeader:
     def __init__(self):
-        self.client_id = None
         self.version = None
         self.code = None
         self.filename_len = None
         self.filename = None
-
-    @property
-    def client_id(self):
-        return self._client_id
-
-    @client_id.setter
-    def client_id(self, cid):
-        self._client_id = cid
 
     @property
     def version(self):

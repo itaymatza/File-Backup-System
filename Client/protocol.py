@@ -6,8 +6,6 @@ USHORT = '<H'  # unsigned 16-bit short
 USHORT_MAX = (2 ** (8 * 2))
 ULONG = '<L'  # unsigned 32-bit long
 ULONG_MAX = (2 ** (8 * 4))
-UNAME_LENGTH = '<256s'
-USERNAME_LEN = 256
 
 OP = {'BACKUP_REQUEST': 100,
       'RECOVER_REQUEST': 101,
@@ -22,18 +20,16 @@ STATUS = {'RECOVER_SUCCESS': 200,
 
 
 # Encode client request according to the protocol spec
-def encode_request(uid, version, op, filename=None):
-    request = encode_request_header(uid, version, op, filename)
+def encode_request(version, op, filename=None):
+    request = encode_request_header(version, op, filename)
     if op == 'BACKUP_REQUEST':
         request += encode_request_payload(filename)
     return request
 
 
 # Encode client request header according to the protocol spec
-def encode_request_header(uid, version, op, filename=None):
+def encode_request_header(version, op, filename=None):
     # validate parameters
-    if len(uid) <= 0 or USERNAME_LEN < len(uid):
-        raise Exception('Failed to create request header - Invalid username')
     if version <= 0 or UCHAR_MAX < version:
         raise Exception('Failed to create request header - Invalid version number')
     if op in OP:
@@ -48,8 +44,7 @@ def encode_request_header(uid, version, op, filename=None):
         raise Exception('Failed to create request header - Invalid op number')
 
     # encode the request header
-    header = struct.pack(UNAME_LENGTH, uid.encode('utf-8'))
-    header += struct.pack(UCHAR, version)
+    header = struct.pack(UCHAR, version)
     header += struct.pack(UCHAR, op_number)
 
     if op != 'GETLIST_REQUEST':  # getlist request have no filename filed

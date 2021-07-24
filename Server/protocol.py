@@ -60,13 +60,12 @@ def encode_server_response(response):
 
 def recv_and_decode_client_request(conn, db, request, uid):
     # decode request header
-    request.header.client_id, = struct.unpack(UNAME_LENGTH, uid)
     request.header.version, = struct.unpack(UCHAR, conn.recv(1))
     request.header.code, = struct.unpack(UCHAR, conn.recv(1))
     request.header.filename_len, = struct.unpack(ULONG, conn.recv(4))
 
     # validate request header
-    if None in {request.header.client_id, request.header.version, request.header.code}:
+    if None in {request.header.version, request.header.code}:
         request.header.code = ResponseCode.GENERAL_ERROR.value
 
     # validate request payload

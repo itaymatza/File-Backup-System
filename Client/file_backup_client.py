@@ -38,7 +38,7 @@ if __name__ == '__main__':
             # Backup file request
             if option == RequestMenu.BACKUP.value:
                 file_to_backup = input("Please enter the path for the file to backup: ")
-                file_backup_request = encode_request(uid, CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
+                file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
                 sock.sendall(file_backup_request)
                 file_name, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             # Recover file request
             elif option == RequestMenu.RECOVER.value:
                 file_to_recover = input("Please enter file name to recover: ")
-                file_recover_request = encode_request(uid, CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
+                file_recover_request = encode_request(CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
                 sock.sendall(file_recover_request)
                 file_name, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
             # Get files list request
             elif option == RequestMenu.GETLIST.value:
-                list_request = encode_request(uid, CLIENT_VERSION, 'GETLIST_REQUEST')
+                list_request = encode_request(CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)
                 files_list, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             # Delete file from server request
             elif option == RequestMenu.DELETION.value:
                 file_to_delete = input("Please enter file name to delete from the server: ")
-                file_delete_request = encode_request(uid, CLIENT_VERSION, 'DELETION_REQUEST', file_to_delete)
+                file_delete_request = encode_request(CLIENT_VERSION, 'DELETION_REQUEST', file_to_delete)
                 sock.sendall(file_delete_request)
                 file_name, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
