@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 files_list, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
                     print("Received files list for " + uid + ':')
-                    print(files_list)
+                    print(files_list.decode("utf-8"))
                 else:
                     print("Error: Unable to get files list from server.")
 

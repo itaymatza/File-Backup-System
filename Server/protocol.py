@@ -53,7 +53,13 @@ def encode_server_response(response):
     if response.header.code not in {ResponseCode.EMPTY_FILE_LIST_ERROR.value, ResponseCode.GENERAL_ERROR.value}:
         encoded_response += struct.pack(USHORT, response.payload.payload_size)
         payload_size = '<' + str(response.payload.payload_size) + 's'  # payload_size format for struct
-        encoded_response += struct.pack(payload_size, response.payload.payload)
+        if response.header.code == ResponseCode.SENT_LIST_SUCCESSFULLY.value:
+            for file in response.payload.payload:
+                file_size = '<' + str(len(file[0].decode('utf-8')) + 1) + 's'  # payload_size format for struct
+                filename = file[0].decode('utf-8') + '\n'
+                encoded_response += struct.pack(file_size, filename.encode('utf-8'))
+        else:
+            encoded_response += struct.pack(payload_size, response.payload.payload)
 
         if response.header.code == ResponseCode.RECOVER_SUCCESS.value:
             encoded_response += struct.pack(ULONG, response.payload.file_size)

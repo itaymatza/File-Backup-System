@@ -2,7 +2,6 @@
 import uuid
 from enum import Enum
 
-FILENAME_LENGTH = 255
 
 class ResponseCode(Enum):
     RECOVER_SUCCESS = 200
@@ -35,7 +34,9 @@ class Response:
     def set_files_list(self, files_list):
         if 0 < len(files_list):
             self.header.code = ResponseCode.SENT_LIST_SUCCESSFULLY.value
-            self.payload = ResponsePayload(len(files_list) * FILENAME_LENGTH, files_list)
+            self.payload = ResponsePayload(0, files_list)
+            for file in files_list:
+                self.payload.payload_size += len(file[0]) + 1
         else:
             self.header.code = ResponseCode.EMPTY_FILE_LIST_ERROR.value
 

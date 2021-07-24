@@ -62,7 +62,8 @@ class DataBase:
         """
         # Add new file to files table and return the index of the file.
         """
-        self.cursor.execute("INSERT INTO files(OwnerID, FileName, Content) VALUES (?, ?, ?)", (client_id, file_name, file_content))
+        self.cursor.execute("INSERT INTO files(OwnerID, FileName, Content) "
+                            "VALUES (?, ?, ?)", (client_id, file_name, file_content))
         self.db.commit()
 
         self.cursor.execute("""SELECT last_insert_rowid()""")

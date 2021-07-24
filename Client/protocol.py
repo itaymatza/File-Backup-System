@@ -98,11 +98,13 @@ def decode_server_response(sock, uid):
 
     if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
-    elif request_status == STATUS.get('BACKUP_OR_DELETE_SUCCESS'):
+    elif request_status in {STATUS.get('BACKUP_SUCCESS'),
+                            STATUS.get('DELETE_SUCCESS'),
+                            STATUS.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
 
-    # response with payload
-    elif request_status in {STATUS.get('RECOVER_SUCCESS'), STATUS.get('SENT_LIST_SUCCESSFULLY')}:
+    # payload response with extra filed
+    elif request_status == STATUS.get('RECOVER_SUCCESS'):
         received_data = sock.recv(4)
         received_file_len, = struct.unpack('<L', received_data)
         if request_status == STATUS.get('RECOVER_SUCCESS'):
