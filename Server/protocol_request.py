@@ -40,7 +40,7 @@ class RequestHeader:
     @version.setter
     def version(self, version):
         if version is None:
-            self._code = None
+            self._version = None
         elif version in {1, 2}:
             self._version = version
 
@@ -67,7 +67,7 @@ class RequestHeader:
 
     @property
     def filename(self):
-        return self.filename
+        return self._filename
 
     @filename.setter
     def filename(self, filename):

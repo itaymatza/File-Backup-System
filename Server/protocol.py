@@ -58,11 +58,15 @@ def encode_server_response(response):
     return encoded_response
 
 
-def recv_and_decode_client_request(conn, db, request, uid):
+def recv_and_decode_client_request(conn, db, request, version):
     # decode request header
-    request.header.version, = struct.unpack(UCHAR, conn.recv(1))
+    request.header.version, = struct.unpack(UCHAR, version)
     request.header.code, = struct.unpack(UCHAR, conn.recv(1))
-    request.header.filename_len, = struct.unpack(ULONG, conn.recv(4))
+    request.header.filename_len, = struct.unpack(USHORT, conn.recv(4))
+    # filename
+    filename = recv_all(conn, request.header.filename_len)
+    filename_len = '<' + str(request.header.filename_len) + 's'  # filename_len format for struct
+    request.header.filename, = struct.unpack(filename_len, filename)
 
     # validate request header
     if None in {request.header.version, request.header.code}:

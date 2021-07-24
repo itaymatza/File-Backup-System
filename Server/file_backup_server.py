@@ -13,7 +13,7 @@ import server_helper
 from Server.authentication import authenticate_user
 
 SERVER_VERSION = 1
-UID_LEN = 16
+VERSION_LEN = 1
 
 
 def request_handler(conn, lock, db):
@@ -22,15 +22,15 @@ def request_handler(conn, lock, db):
 
     while True:
         try:
-            uid = conn.recv(UID_LEN)
-            if not uid:
+            version = conn.recv(VERSION_LEN)
+            if not version:
                 print('Connection closed by client.')
                 break
         except Exception as connection_exception:
             print('Connection closed by client: %s' % connection_exception)
             break
 
-        code = protocol.recv_and_decode_client_request(conn, db, request, uid)
+        code = protocol.recv_and_decode_client_request(conn, db, request, version)
 
         if code == protocol.ResponseCode.GENERAL_ERROR.value:
             response.set_general_error()
