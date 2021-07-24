@@ -159,6 +159,3 @@ def test():
 
     print(db.print_table_clients())
     print(db.print_table_files())
-
-
-test()
