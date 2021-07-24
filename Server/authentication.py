@@ -13,7 +13,7 @@ PASSWORD_LEN = 2048
 
 
 # Returns false if connection denied and true otherwise.
-def authenticate_user(connection, db):
+def authenticate_user(connection, db, lock):
     name = connection.recv(USERNAME_LEN)
     name = name.decode()
     password = connection.recv(PASSWORD_LEN)
@@ -24,15 +24,15 @@ def authenticate_user(connection, db):
     # If new user,  register in database
     if not db.is_client_name_exists(name):
         uid = uuid.uuid4()
+        lock.acquire()
         db.insert_new_client_to_the_table(uid, name, password)
+        lock.release()
         connection.send(str.encode('Registration Successful'))
         print('Registered : ', name)
-        print(db.print_table_clients())
 
     # If user already existing user, check if the entered password is correct
     else:
         uid = db.get_client_uid(name)
-        passe = db.pull_password(uid)
         if db.pull_password(uid) == password:
             connection.send(str.encode('Connection Successful'))  # Response Code for Connected Client
             print('Connected: ', name)

@@ -13,7 +13,8 @@ OP = {'BACKUP_REQUEST': 100,
       'GETLIST_REQUEST': 103}
 STATUS = {'RECOVER_SUCCESS': 200,
           'SENT_LIST_SUCCESSFULLY': 201,
-          'BACKUP_OR_DELETE_SUCCESS': 202,
+          'BACKUP_SUCCESS': 202,
+          'DELETE_SUCCESS': 203,
           'UNKNOWN_FILE_ERROR': 1000,
           'EMPTY_FILE_LIST_ERROR': 1001,
           'GENERAL_ERROR': 1002}
@@ -78,8 +79,7 @@ def encode_request_payload(filename):
 # Returns tuple - (date,is_success_status)
 def decode_server_response(sock, uid):
     # pars header - receive version and status bytes
-    srv_version = struct.unpack('<B', sock.recv(1))
-    request_status = struct.unpack('<H', sock.recv(2))
+    srv_version, request_status = struct.unpack('<BH', sock.recv(3))
 
     # error status
     if request_status in {STATUS.get('EMPTY_FILE_LIST_ERROR'), STATUS.get('GENERAL_ERROR')}:

@@ -37,36 +37,28 @@ def recv_and_decode_client_request(conn, db, request, version):
         request.payload = request.RequestPayload()
         request.payload.payload_size, = struct.unpack(ULONG, conn.recv(4))
         payload_received = _recv_all(conn, request.payload.payload_size)
-        payload_size = '<' + str(request.payload.payload_size) + 's'
+        payload_size = '<' + str(request.payload.payload_size) + 's'  # payload_size format for struct
         request.payload.payload, = struct.unpack(payload_size, payload_received)
 
     return request.header.code
 
 
 def encode_server_response(response):
+    # header
     encoded_response = struct.pack(UCHAR, response.header.version)
     encoded_response += struct.pack(USHORT, response.header.code)
-    encoded_response += struct.pack(ULONG, response.header.filename_len)
-    if response.header.code == ResponseCode.REGISTERED_SUCCESSFULLY.value:
-        encoded_response += struct.pack(UNAME_LENGTH, response.payload.client_id)
-    elif response.header.code == ResponseCode.CLIENTS_LIST.value:
-        for client in response.payload.clients_list:
-            encoded_response += struct.pack(UNAME_LENGTH, client.client_id)
-            encoded_response += struct.pack(UNAME_LENGTH, client.client_name)
-    elif response.header.code == ResponseCode.PUBLIC_KEY.value:
-        encoded_response += struct.pack(UNAME_LENGTH, response.payload.client_id)
-        encoded_response += struct.pack(KEY_LENGTH, response.payload.public_key)
-    elif response.header.code == ResponseCode.PULL_MESSAGES.value:
-        for message in response.payload.messages:
-            encoded_response += struct.pack(UNAME_LENGTH, message.client_id)
-            encoded_response += struct.pack(ULONG, message.message_id)
-            encoded_response += struct.pack(UCHAR, message.message_type)
-            encoded_response += struct.pack(ULONG, message.message_size)
-            message_length = '<' + str(message.message_size) + 's'
-            encoded_response += struct.pack(message_length, message.message_content)
-    elif response.header.code == ResponseCode.PUSH_MESSAGE.value:
-        encoded_response += struct.pack(UNAME_LENGTH, response.payload.client_id)
-        encoded_response += struct.pack(ULONG, response.payload.message_id)
+
+    # payload
+    if response.header.code not in {ResponseCode.EMPTY_FILE_LIST_ERROR.value, ResponseCode.GENERAL_ERROR.value}:
+        encoded_response += struct.pack(USHORT, response.payload.payload_size)
+        payload_size = '<' + str(response.payload.payload_size) + 's'  # payload_size format for struct
+        encoded_response += struct.pack(payload_size, response.payload.payload)
+
+        if response.header.code == ResponseCode.RECOVER_SUCCESS.value:
+            encoded_response += struct.pack(ULONG, response.payload.file_size)
+            file_size = '<' + str(response.payload.payload_size) + 's'  # file_size format for struct
+            encoded_response += struct.pack(file_size, response.payload.file)
+
     return encoded_response
 
 

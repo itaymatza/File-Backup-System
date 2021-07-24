@@ -35,17 +35,21 @@ def request_handler(conn, uid, lock, db):
         if code == protocol.ResponseCode.GENERAL_ERROR.value:
             response.set_general_error()
 
+        # Backup file request
         elif code == protocol.RequestCode.BACKUP_REQUEST.value:
             pass
 
+        # Recover file request
         elif code == protocol.RequestCode.RECOVER_REQUEST.value:
             file = db.pull_file(request.header.client_id, request.payload.message_content)
             response.set_pull_messages(file)
 
+        # Get files list request
         elif code == protocol.RequestCode.GETLIST_REQUEST.value:
-            clients_list = db.get_files_list(request.header.client_id)
-            response.set_clients_list(clients_list)
+            files_list = db.get_files_list(uid)
+            response.set_files_list(files_list)
 
+        # Delete request
         elif code == protocol.RequestCode.DELETION_REQUEST.value:
             lock.acquire()
             db.delete_file(request.header.client_id, request.payload.message_content)
@@ -79,7 +83,7 @@ if __name__ == '__main__':
                 print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
                 connection = context.wrap_socket(sock_conn, server_side=True)
                 print("SSL established. Peer: {}".format(connection.getpeercert()))
-                is_authenticated, uid = authenticate_user(connection, DB)
+                is_authenticated, uid = authenticate_user(connection, DB, thread_lock)
                 if is_authenticated:
                     # client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
                     # client_thread.start()
