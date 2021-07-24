@@ -91,9 +91,6 @@ if __name__ == '__main__':
                     # client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
                     # client_thread.start()
                     request_handler(connection, uid, thread_lock, DB)
-                else:
-                    # TODO: Return error status.
-                    pass
                 connection.shutdown(socket.SHUT_RDWR)
                 connection.close()
     except Exception as error:
