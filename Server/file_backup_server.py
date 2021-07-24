@@ -44,7 +44,7 @@ def request_handler(conn, uid, lock, db):
 
         # Recover file request
         elif code == protocol.RequestCode.RECOVER_REQUEST.value:
-            file = db.pull_file(request.header.client_id, request.payload.message_content)
+            file = db.pull_file(uid, request.payload.message_content)
             response.set_pull_messages(file)
 
         # Get files list request
@@ -54,9 +54,13 @@ def request_handler(conn, uid, lock, db):
 
         # Delete request
         elif code == protocol.RequestCode.DELETION_REQUEST.value:
-            lock.acquire()
-            db.delete_file(request.header.client_id, request.payload.message_content)
-            lock.release()
+            if db.is_file_exists(uid, request.header.filename):
+                lock.acquire()
+                db.delete_file(uid, request.header.filename)
+                lock.release()
+                response.set_as_delete(request.header.filename)
+            else:
+                response.set_unknown_file_error(request.header.filename)
 
         encoded_response = protocol.encode_server_response(response)
         conn.sendall(encoded_response)

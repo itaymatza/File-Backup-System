@@ -76,6 +76,14 @@ class DataBase:
         self.cursor.execute("SELECT Password FROM clients WHERE ID = ?", (client_id,))
         return self.cursor.fetchall()[0][0].decode('utf-8')
 
+    def is_file_exists(self, client_id, file_name):
+        """
+        Return true if file exists for a given client
+        """
+        self.cursor.execute("SELECT COUNT(*) FROM files WHERE OwnerID = ? and FileName = ?", (client_id, file_name))
+        s = self.cursor.fetchone()
+        return True if s[0] > 0 else False
+
     def delete_file(self, client_id, file_name):
         """
         Delete file from files table
@@ -125,7 +133,7 @@ class DataBase:
         """
         self.cursor.execute("SELECT COUNT(*) FROM clients WHERE ID = ? ", (client_id,))
         s = self.cursor.fetchone()
-        return True if s else False
+        return True if s[0] > 0 else False
 
     def print_table_clients(self):
         self.cursor.execute("SELECT * FROM clients")

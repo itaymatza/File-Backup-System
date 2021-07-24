@@ -83,9 +83,9 @@ if __name__ == '__main__':
                 sock.sendall(file_delete_request)
                 file_name, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
-                    print("Deletion succeed of file " + file_name.decode("utf-8") + '.')
+                    print("Deletion succeed of file '" + file_name.decode("utf-8") + "'.")
                 else:
-                    print("Unable to delete file - " + file_name.decode("utf-8") + '.')
+                    print("Unable to delete file '" + file_name.decode("utf-8") + "'.")
 
             elif option == RequestMenu.EXIT.value:
                 print("Bye Bye.")

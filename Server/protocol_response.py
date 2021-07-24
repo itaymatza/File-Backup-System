@@ -27,6 +27,10 @@ class Response:
     def set_general_error(self):
         self.header.code = ResponseCode.GENERAL_ERROR.value
 
+    def set_unknown_file_error(self, filename):
+        self.header.code = ResponseCode.UNKNOWN_FILE_ERROR.value
+        self.payload = ResponsePayload(len(filename), filename)
+
     def set_backup(self, filename):
         self.header.code = ResponseCode.BACKUP_SUCCESS.value
         self.payload = ResponsePayload(len(filename), filename)
@@ -39,6 +43,10 @@ class Response:
                 self.payload.payload_size += len(file[0]) + 1
         else:
             self.header.code = ResponseCode.EMPTY_FILE_LIST_ERROR.value
+
+    def set_as_delete(self, filename):
+        self.header.code = ResponseCode.DELETE_SUCCESS.value
+        self.payload = ResponsePayload(len(filename), filename)
 
 
 class ResponseHeader:
