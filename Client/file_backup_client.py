@@ -28,7 +28,7 @@ if __name__ == '__main__':
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
-        sock.connect((server_ip, server_port))  # connect to backupserver
+        sock.connect((server_ip, server_port))  # connect to backup server
         uid = authenticate_user(sock)
 
         proceed_to_another_request = True
