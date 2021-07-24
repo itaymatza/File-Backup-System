@@ -8,8 +8,8 @@ Backup system..
 
 Prerequirements
 ------------
-Cryptography.
-SSL Certificates.
+- Cryptography.
+- SSL Certificates.
 
 Cryptography
 ------------
