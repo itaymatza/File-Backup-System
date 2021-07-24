@@ -48,7 +48,7 @@ def encode_request_header(uid, version, op, filename=None):
         raise Exception('Failed to create request header - Invalid op number')
 
     # encode the request header
-    header = struct.pack(UNAME_LENGTH, uid)
+    header = struct.pack(UNAME_LENGTH, uid.encode('utf-8'))
     header += struct.pack(UCHAR, version)
     header += struct.pack(UCHAR, op_number)
 
