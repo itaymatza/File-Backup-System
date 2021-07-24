@@ -28,6 +28,10 @@ class Response:
     def set_general_error(self):
         self.header.code = ResponseCode.GENERAL_ERROR.value
 
+    def set_backup(self, filename):
+        self.header.code = ResponseCode.BACKUP_SUCCESS.value
+        self.payload = ResponsePayload(len(filename), filename)
+
     def set_files_list(self, files_list):
         if 0 < len(files_list):
             self.header.code = ResponseCode.SENT_LIST_SUCCESSFULLY.value

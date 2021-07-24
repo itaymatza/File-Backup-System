@@ -8,6 +8,7 @@ without context information from previous packets in the session.
 
 """
 import struct
+import protocol_request
 from protocol_request import Request, RequestCode
 from protocol_response import Response, ResponseCode
 
@@ -34,7 +35,7 @@ def recv_and_decode_client_request(conn, db, request, version):
 
     # request payload for backup request
     if request.header.code == RequestCode.BACKUP_REQUEST.value:
-        request.payload = request.RequestPayload()
+        request.payload = protocol_request.RequestPayload()
         request.payload.payload_size, = struct.unpack(ULONG, conn.recv(4))
         payload_received = _recv_all(conn, request.payload.payload_size)
         payload_size = '<' + str(request.payload.payload_size) + 's'  # payload_size format for struct

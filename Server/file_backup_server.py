@@ -37,7 +37,10 @@ def request_handler(conn, uid, lock, db):
 
         # Backup file request
         elif code == protocol.RequestCode.BACKUP_REQUEST.value:
-            pass
+            lock.acquire()
+            db.insert_new_file_to_the_table(uid, request.header.filename, request.payload.payload)
+            lock.release()
+            response.set_backup(request.header.filename)
 
         # Recover file request
         elif code == protocol.RequestCode.RECOVER_REQUEST.value:

@@ -65,7 +65,7 @@ def encode_request_payload(filename):
         with open(filename, 'rb') as f:
             file = f.read()
             payload_size = len(file)
-            if payload_size <= 0 or ULONG_MAX < payload_size:
+            if payload_size < 0 or ULONG_MAX < payload_size:
                 raise Exception('Failed to create request header - Invalid payload size')
     except IOError:
         raise Exception('Error: ' + filename + 'file is not accessible.')
