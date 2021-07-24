@@ -4,15 +4,20 @@ Note: In this redme doc, we are referring to Windows environment.
 
 About
 -----
-Backup system...
+Backup system..
 
-Installation
+Prerequirements
 ------------
-cryptography - How to install
+Cryptography.
+SSL Certificates.
+
+Cryptography
+------------
+How to install
 
 
-SSL
----
+SSL Certificates
+----------------
 #Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
 
 For this example, we’ll create Self-signed server and client certificates - 
