@@ -68,10 +68,10 @@ def encode_request_payload(filename):
             if payload_size < 0 or ULONG_MAX < payload_size:
                 raise Exception('Failed to create request header - Invalid payload size')
     except IOError:
-        raise Exception('Error: ' + filename + 'file is not accessible.')
+        raise IOError('Error: ' + filename + 'file is not accessible.')
 
     payload = struct.pack(ULONG, payload_size)
-    payload += payload
+    payload += file
     return payload
 
 

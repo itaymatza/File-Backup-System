@@ -33,12 +33,20 @@ if __name__ == '__main__':
 
         proceed_to_another_request = True
         while proceed_to_another_request:
-            option = int(input(MENU))
+            try:  # Gets input from user
+                option = int(input(MENU))
+            except Exception as exception:
+                print(exception)
+                continue
 
             # Backup file request
             if option == RequestMenu.BACKUP.value:
                 file_to_backup = input("Please enter the path for the file to backup: ")
-                file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
+                try:
+                    file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
+                except IOError as exception:
+                    print(exception)
+                    continue
                 sock.sendall(file_backup_request)
                 file_name, is_succeeded_status = decode_server_response(sock, uid)
                 if is_succeeded_status:
