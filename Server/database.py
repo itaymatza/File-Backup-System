@@ -34,7 +34,7 @@ class DataBase:
         """
         try:
             self.cursor.execute(create_table_sql)
-            print(self.cursor.fetchall())
+            #print(self.cursor.fetchall())
         except sqlite3.Error as e:
             print(e)
 
