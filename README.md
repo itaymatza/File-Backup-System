@@ -14,7 +14,7 @@ Server:
 Client:
 - server.info
 
-Prerequirements
+Requirements
 ------------
 - Cryptography.
 - SSL Certificates.
