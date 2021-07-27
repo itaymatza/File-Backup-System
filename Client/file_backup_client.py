@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 if is_succeeded_status:
                     print("Recovered file - " + file_name.decode("utf-8") + '.')
                 else:
-                    print("File " + file_name.decode("utf-8") + ' is not exists in the server.')
+                    print("Unable to get file '" + file_name.decode("utf-8") + "' from the server.")
 
             # Get files list request
             elif option == RequestMenu.GETLIST.value:
@@ -75,7 +75,7 @@ if __name__ == '__main__':
                     print("Received files list for " + uid + ':')
                     print(files_list.decode("utf-8"))
                 else:
-                    print("Error: Unable to get files list from server.")
+                    print("Unable to get files list from the server.")
 
             # Delete file from server request
             elif option == RequestMenu.DELETION.value:

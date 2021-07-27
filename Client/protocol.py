@@ -94,25 +94,22 @@ def decode_server_response(sock, uid):
     filename_len = sock.recv(2)
     received_filename_len, = struct.unpack('<H', filename_len)
     filename = recv_all(sock, received_filename_len)
-    received_filename, = struct.unpack('<' + str(received_filename_len) + 's', filename)
+    received_filename_len = '<' + str(received_filename_len) + 's'  # received_filename_len format for struct
+    received_filename, = struct.unpack(received_filename_len, filename)
+
+    # file payload decode, for recover request
+    if request_status == STATUS.get('RECOVER_SUCCESS'):
+        received_data = sock.recv(4)
+        received_file_len, = struct.unpack(ULONG, received_data)
+        recv_to_file(sock, received_file_len, received_filename)
 
     if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),
+                            STATUS.get('RECOVER_SUCCESS'),
                             STATUS.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
-
-    # payload response with extra filed
-    elif request_status == STATUS.get('RECOVER_SUCCESS'):
-        received_data = sock.recv(4)
-        received_file_len, = struct.unpack('<L', received_data)
-        if request_status == STATUS.get('RECOVER_SUCCESS'):
-            recv_to_file(sock, received_file_len, 'tmp')
-            return received_filename, True
-        else:  # SENT_LIST_SUCCESSFULLY
-            files_list = b"" + recv_all(sock, received_file_len)
-            return files_list, True
 
 
 def recv_all(sock, n):

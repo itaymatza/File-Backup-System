@@ -44,8 +44,11 @@ def request_handler(conn, uid, lock, db):
 
         # Recover file request
         elif code == protocol.RequestCode.RECOVER_REQUEST.value:
-            file = db.pull_file(uid, request.payload.message_content)
-            response.set_pull_messages(file)
+            if db.is_file_exists(uid, request.header.filename):
+                file = db.pull_file(uid, request.header.filename)
+                response.set_recover(request.header.filename, file)
+            else:
+                response.set_unknown_file_error(request.header.filename)
 
         # Get files list request
         elif code == protocol.RequestCode.GETLIST_REQUEST.value:

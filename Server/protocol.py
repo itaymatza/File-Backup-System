@@ -63,7 +63,7 @@ def encode_server_response(response):
 
         if response.header.code == ResponseCode.RECOVER_SUCCESS.value:
             encoded_response += struct.pack(ULONG, response.payload.file_size)
-            file_size = '<' + str(response.payload.payload_size) + 's'  # file_size format for struct
+            file_size = '<' + str(response.payload.file_size) + 's'  # file_size format for struct
             encoded_response += struct.pack(file_size, response.payload.file)
 
     return encoded_response

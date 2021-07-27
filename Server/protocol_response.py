@@ -31,6 +31,10 @@ class Response:
         self.header.code = ResponseCode.UNKNOWN_FILE_ERROR.value
         self.payload = ResponsePayload(len(filename), filename)
 
+    def set_recover(self, filename, file):
+        self.header.code = ResponseCode.RECOVER_SUCCESS.value
+        self.payload = RecoverPayload(len(filename), filename, len(file), file)
+
     def set_backup(self, filename):
         self.header.code = ResponseCode.BACKUP_SUCCESS.value
         self.payload = ResponsePayload(len(filename), filename)
@@ -97,8 +101,8 @@ class ResponsePayload:
 
 
 class RecoverPayload(ResponsePayload):
-    def __init__(self, payload_size=None, payload=None, file_size=None, file=None):
-        super().__init__(payload_size, payload)
+    def __init__(self, filename_size=None, filename=None, file_size=None, file=None):
+        super().__init__(filename_size, filename)
         self.file_size = file_size
         self.file = file
 
