@@ -21,10 +21,10 @@ STATUS = {'RECOVER_SUCCESS': 200,
 
 
 # Encode client request according to the protocol spec
-def encode_request(version, op, filename=None):
+def encode_request(version, op, filename=None, enc=None):
     request = encode_request_header(version, op, filename)
     if op == 'BACKUP_REQUEST':
-        request += encode_request_payload(filename)
+        request += encode_request_payload(filename, enc)
     return request
 
 
@@ -60,7 +60,7 @@ def encode_request_header(version, op, filename=None):
 
 # Encode client request payload according to the protocol spec
 # Request payload apply just for backup request
-def encode_request_payload(filename):
+def encode_request_payload(filename, enc):
     try:
         with open(filename, 'rb') as f:
             file = f.read()
@@ -77,7 +77,7 @@ def encode_request_payload(filename):
 
 # Decode server response according to the protocol spec
 # Returns tuple - (date,is_success_status)
-def decode_server_response(sock, uid):
+def decode_server_response(sock, uid, enc=None):
     # pars header - receive version and status bytes
     srv_version, request_status = struct.unpack('<BH', sock.recv(3))
 
