@@ -29,6 +29,6 @@ def authenticate_user(sock):
     print(response)
     if response == 'Login Failed':
         raise Exception(response)
-    if response == 'Registeration successful':
+    if response == 'Registration Successful':
         write_key()
     return name
