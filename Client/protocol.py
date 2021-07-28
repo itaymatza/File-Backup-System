@@ -1,3 +1,4 @@
+import os
 import struct
 
 UCHAR = '<B'  # unsigned 8-bit char
