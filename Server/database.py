@@ -84,6 +84,15 @@ class DataBase:
         s = self.cursor.fetchone()
         return True if s[0] > 0 else False
 
+    def add_client(self, client_id, name, password):
+        """
+        Return true if the user was added successfully, otherwise false because the user already exists
+        """
+        if self.is_client_id_exists(client_id):
+            return False
+        self.insert_new_client_to_the_table(client_id, name, password)
+        return True
+
     def add_file(self, client_id, file_name, file_content):
         """
         If the user already has a file with the same name, delete the file before adding it
@@ -168,9 +177,9 @@ def test():
     db = DataBase()
     _uid1 = uuid.uuid4()
     _uid2 = uuid.uuid4()
-    db.insert_new_client_to_the_table(_uid1, "sapir2", "123789")
-    db.insert_new_client_to_the_table(_uid2, "sapir3", "123456")
-    db.insert_new_file_to_the_table(_uid1,"lol","aaaaaaaa")
+    db.add_client(_uid1, "sapir2", "123789")
+    db.add_client(_uid2, "sapir3", "123456")
+    db.add_file(_uid1,"lol","aaaaaaaa")
 
     print(db.print_table_clients())
     print(db.print_table_files())
@@ -179,8 +188,13 @@ def test():
     print(db.is_client_id_exists(_uid2))
     print(db.pull_password(_uid1))
     print(db.pull_file(_uid1, "lol"))
-
+    db.add_file(_uid1,"lol","bbbb")
+    print(db.pull_file(_uid1, "lol"))
+    print(db.print_table_clients())
+    print(db.print_table_files())
     db.delete_file(_uid1, "lol")
 
     print(db.print_table_clients())
     print(db.print_table_files())
+
+test()
