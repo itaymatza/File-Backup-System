@@ -46,7 +46,7 @@ if __name__ == '__main__':
             if option == RequestMenu.BACKUP.value:
                 file_to_backup = input("Please enter the path for the file to backup: ")
                 try:
-                    file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup)
+                    file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup, enc)
                 except IOError as exception:
                     print(exception)
                     continue
@@ -62,7 +62,7 @@ if __name__ == '__main__':
                 file_to_recover = input("Please enter file name to recover: ")
                 file_recover_request = encode_request(CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
                 sock.sendall(file_recover_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                file_name, is_succeeded_status = decode_server_response(sock, uid, enc)
                 if is_succeeded_status:
                     print("Recovered file - " + file_name.decode("utf-8") + '.')
                 else:
