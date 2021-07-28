@@ -43,8 +43,8 @@ class DataBase:
         Initials the database
         """
         if self.db is not None:
-            #self.create_table("DROP TABLE clients")
-            #self.create_table("DROP TABLE files")
+            self.create_table("DROP TABLE clients")
+            self.create_table("DROP TABLE files")
             self.create_table(sql_create_clients_table)  # create clients table
             self.create_table(sql_create_files_table)  # create files table
             self.db.commit()
@@ -53,7 +53,7 @@ class DataBase:
 
     def insert_new_client_to_the_table(self, client_id, name, password):
         """
-        # Add new client to clients table.
+        Add new client to clients table.
         """
         self.cursor.execute("INSERT INTO clients VALUES (?, ?, ?)", (client_id, name, password))
         self.db.commit()
@@ -83,6 +83,14 @@ class DataBase:
         self.cursor.execute("SELECT COUNT(*) FROM files WHERE OwnerID = ? and FileName = ?", (client_id, file_name))
         s = self.cursor.fetchone()
         return True if s[0] > 0 else False
+
+    def add_file(self, client_id, file_name, file_content):
+        """
+        If the user already has a file with the same name, delete the file before adding it
+        """
+        if self.is_file_exists(client_id, file_name):
+            self.delete_file(client_id, file_name)
+        self.insert_new_file_to_the_table(client_id, file_name, file_content)
 
     def delete_file(self, client_id, file_name):
         """
@@ -134,6 +142,7 @@ class DataBase:
         self.cursor.execute("SELECT COUNT(*) FROM clients WHERE ID = ? ", (client_id,))
         s = self.cursor.fetchone()
         return True if s[0] > 0 else False
+
 
     def print_table_clients(self):
         self.cursor.execute("SELECT * FROM clients")
