@@ -5,6 +5,7 @@ Authenticate the client with the server,
 gets command from the client and send request to the server,
 receives response from the server and output status for the client.
 """
+import os
 import socket
 import ssl
 
@@ -46,7 +47,11 @@ if __name__ == '__main__':
             if option == RequestMenu.BACKUP.value:
                 file_to_backup = input("Please enter the path for the file to backup: ")
                 try:
-                    file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup, enc)
+                    if os.path.exists(file_to_backup):
+                        file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup, enc)
+                    else:
+                        print("The file in the path: " + file_to_backup + " not exist.")
+                        continue
                 except IOError as exception:
                     print(exception)
                     continue
