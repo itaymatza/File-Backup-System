@@ -10,7 +10,7 @@ import protocol
 import threading
 import database
 import server_helper
-from Server.authentication import authenticate_user
+from authentication import authenticate_user
 
 SERVER_VERSION = 1
 VERSION_LENGTH = 1

@@ -9,9 +9,9 @@ import os
 import socket
 import ssl
 
-from Client.authentication import authenticate_user
-from Client.client_helper import MENU, get_server_ip_and_port, RequestMenu
-from Client.encryption import load_key, AESenc
+from authentication import authenticate_user
+from client_helper import MENU, get_server_ip_and_port, RequestMenu
+from encryption import load_key, AESenc
 from protocol import encode_request, decode_server_response
 
 CLIENT_VERSION = 1

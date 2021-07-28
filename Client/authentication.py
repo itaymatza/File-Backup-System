@@ -1,4 +1,4 @@
-from Client.encryption import write_key
+from encryption import write_key
 
 USERNAME_LEN = 256
 
