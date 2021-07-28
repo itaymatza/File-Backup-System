@@ -105,6 +105,9 @@ def decode_server_response(sock, uid):
 
     if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
+    elif request_status == STATUS.get('RECOVER_SUCCESS'):
+        file_name_dec = enc.decrypt_file(received_filename)
+        return file_name_dec, True
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),
                             STATUS.get('RECOVER_SUCCESS'),
