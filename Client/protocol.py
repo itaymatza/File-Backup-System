@@ -114,7 +114,6 @@ def decode_server_response(sock, uid, enc=None):
         return file_name_dec, True
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),
-                            STATUS.get('RECOVER_SUCCESS'),
                             STATUS.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
 
