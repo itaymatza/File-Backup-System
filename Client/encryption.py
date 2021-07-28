@@ -26,9 +26,9 @@ class AESenc(object):
         with open(file_name, 'rb') as file:
             ciphertext = file.read()
         dec = f.decrypt(ciphertext)
-        with open(file_name[:-4] + "_dec" + file_name[-4:], 'wb') as file:
+        with open(file_name, 'wb') as file:
             file.write(dec)
-        return file_name[:-4] + "_dec" + file_name[-4:]
+        return file_name
 
 
 def write_key():
@@ -59,4 +59,4 @@ def test():
     os.remove(file_name_dec)
 
 
-test()
+#test()
