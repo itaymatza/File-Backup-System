@@ -37,6 +37,8 @@ def encode_request_header(version, op, filename=None):
         if op != 'GETLIST_REQUEST':
             if not filename:
                 raise Exception('Failed to create request header - Missing filename')
+            head, tail = os.path.split(filename)
+            filename = tail
             filename_len = len(filename.encode('utf-8'))
             if filename_len <= 0 or USHORT_MAX < filename_len:
                 raise Exception('Failed to create request header - Missing filename size')
