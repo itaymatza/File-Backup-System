@@ -10,6 +10,7 @@ import ssl
 
 from Client.authentication import authenticate_user
 from Client.client_helper import MENU, get_server_ip_and_port, RequestMenu
+from Client.encryption import load_key, AESenc
 from protocol import encode_request, decode_server_response
 
 CLIENT_VERSION = 1
@@ -30,7 +31,8 @@ if __name__ == '__main__':
         sock = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
         sock.connect((server_ip, server_port))  # connect to backup server
         uid = authenticate_user(sock)
-
+        key = load_key()
+        enc = AESenc(key)
         proceed_to_another_request = True
         while proceed_to_another_request:
             # Gets input from user
