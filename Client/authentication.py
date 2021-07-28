@@ -1,3 +1,5 @@
+from Client.encryption import write_key
+
 USERNAME_LEN = 256
 
 
@@ -27,4 +29,6 @@ def authenticate_user(sock):
     print(response)
     if response == 'Login Failed':
         raise Exception(response)
+    if response == 'Registeration successful':
+        write_key()
     return name
