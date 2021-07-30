@@ -9,7 +9,7 @@ import os
 import socket
 import ssl
 
-from authentication import authenticate_user
+from authentication import authenticate_client
 from client_helper import MENU, get_server_ip_and_port, RequestMenu
 from encryption import load_key, AESenc
 from protocol import encode_request, decode_server_response
@@ -17,28 +17,29 @@ from protocol import encode_request, decode_server_response
 CLIENT_VERSION = 1
 
 if __name__ == '__main__':
-    server_info_file = "server.info"
-    server_ip, server_port = get_server_ip_and_port(server_info_file)
-    server_sni_hostname = 'backupserver.com'
-    server_cert = 'server.crt'
-    client_cert = 'client.crt'
-    client_key = 'client.key'
+    SERVER_INFO_FILE = "server.info"
+    SERVER_IP, SERVER_PORT = get_server_ip_and_port(SERVER_INFO_FILE)
+    CLIENT_KEY_SNI_HOSTNAME = 'backupserver.com'
+    SERVER_CERT = 'server.crt'
+    CLIENT_CERT = 'client.crt'
+    CLIENT_KEY = 'client.key'
 
-    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=server_cert)
-    context.load_cert_chain(certfile=client_cert, keyfile=client_key)
+    # Configuration for SSL
+    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
+    context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
-        sock.connect((server_ip, server_port))  # connect to backup server
-        uid = authenticate_user(sock)
-        key = load_key(uid)
+        sock = context.wrap_socket(s, server_side=False, server_hostname=CLIENT_KEY_SNI_HOSTNAME)
+        sock.connect((SERVER_IP, SERVER_PORT))  # connect to backup server
+        uname = authenticate_client(sock)
+        key = load_key(uname)
         enc = AESenc(key)
 
         proceed_to_another_request = True
         while proceed_to_another_request:
-            # Gets input from user
             try:
+                # Gets input from user
                 option = int(input(MENU))
             except Exception as exception:
                 print(exception)
@@ -53,7 +54,7 @@ if __name__ == '__main__':
                     print(exception)
                     continue
                 sock.sendall(file_backup_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                file_name, is_succeeded_status = decode_server_response(sock, uname)
                 if is_succeeded_status:
                     print("Successfully backup file " + file_name.decode("utf-8") + '.')
                 else:
@@ -64,7 +65,7 @@ if __name__ == '__main__':
                 file_to_recover = input("Please enter file name to recover: ")
                 file_recover_request = encode_request(CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
                 sock.sendall(file_recover_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uid, enc)
+                file_name, is_succeeded_status = decode_server_response(sock, uname, enc)
                 if is_succeeded_status:
                     print("Recovered file - " + file_name.decode("utf-8") + '.')
                 else:
@@ -74,9 +75,9 @@ if __name__ == '__main__':
             elif option == RequestMenu.GETLIST.value:
                 list_request = encode_request(CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)
-                files_list, is_succeeded_status = decode_server_response(sock, uid)
+                files_list, is_succeeded_status = decode_server_response(sock, uname)
                 if is_succeeded_status:
-                    print("Received files list for " + uid + ':')
+                    print("Received files list for " + uname + ':')
                     print(files_list.decode("utf-8"))
                 else:
                     print("Unable to get files list from the server.")
@@ -86,7 +87,7 @@ if __name__ == '__main__':
                 file_to_delete = input("Please enter file name to delete from the server: ")
                 file_delete_request = encode_request(CLIENT_VERSION, 'DELETION_REQUEST', file_to_delete)
                 sock.sendall(file_delete_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uid)
+                file_name, is_succeeded_status = decode_server_response(sock, uname)
                 if is_succeeded_status:
                     print("Deletion succeed of file '" + file_name.decode("utf-8") + "'.")
                 else:

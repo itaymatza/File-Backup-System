@@ -3,7 +3,7 @@ from encryption import write_key
 USERNAME_LEN = 256
 
 
-def authenticate_user(sock):
+def authenticate_client(sock):
     name = ''
     is_valid_name = False
 
