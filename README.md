@@ -1,7 +1,5 @@
 # File-backup-system
 
-Note: In this redme doc, we are referring to Windows environment.
-
 About
 -----
 Backup system..
@@ -26,7 +24,9 @@ How to install
 
 SSL Certificates
 ----------------
-#Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
+#Note: In this redme doc, we are referring to Windows environment.
+
+#Note: Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
 
 For this example, we’ll create Self-signed server and client certificates - 
 
