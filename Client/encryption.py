@@ -41,7 +41,8 @@ def write_key(name):
     Generates a key and save it into a file
     """
     key = Fernet.generate_key()
-    os.mkdir(name)
+    if not os.path.exists(name):
+        os.mkdir(name)
     path = pathlib.Path().resolve()
     path = os.path.join(path, name)
     path = os.path.join(path, "key.key")

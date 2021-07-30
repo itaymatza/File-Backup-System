@@ -34,6 +34,7 @@ if __name__ == '__main__':
         uid = authenticate_user(sock)
         key = load_key(uid)
         enc = AESenc(key)
+
         proceed_to_another_request = True
         while proceed_to_another_request:
             # Gets input from user

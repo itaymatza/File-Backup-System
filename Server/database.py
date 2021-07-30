@@ -43,13 +43,24 @@ class DataBase:
         Initials the database
         """
         if self.db is not None:
-            self.create_table("DROP TABLE clients")
-            self.create_table("DROP TABLE files")
-            self.create_table(sql_create_clients_table)  # create clients table
-            self.create_table(sql_create_files_table)  # create files table
+            if not self._is_table_exists('clients'):
+                self.create_table(sql_create_clients_table)
+            if not self._is_table_exists('files'):
+                self.create_table(sql_create_files_table)
             self.db.commit()
         else:
             print("Error! cannot create the database connection.")
+
+    # Check if given table_name exists in given SQL DB.
+    def _is_table_exists(self, table_name):
+        self.cursor.execute("""
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE type='table' AND name = '{0}'
+            """.format(table_name.replace('\'', '\'\'')))
+        if self.cursor.fetchone()[0] == 1:
+            return True
+        return False
 
     def insert_new_client_to_the_table(self, client_id, name, password):
         """
