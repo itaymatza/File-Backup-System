@@ -85,12 +85,12 @@ def encode_request_payload(filename, enc):
 # Returns tuple - (date,is_success_status)
 def decode_server_response(sock, name, enc=None):
     # pars header - receive version and status bytes
-    srv_version, request_status = struct.unpack('<BH', sock.recv(3))
+    srv_version, response_code = struct.unpack('<BH', sock.recv(3))
 
     # error status
-    if request_status in {ResponseCode.get('EMPTY_FILE_LIST_ERROR'), ResponseCode.get('GENERAL_ERROR')}:
+    if response_code in {ResponseCode.get('EMPTY_FILE_LIST_ERROR'), ResponseCode.get('GENERAL_ERROR')}:
         error_msg = "Unable to get file list from the server - \n"
-        if request_status == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
+        if response_code == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
             error_msg += "There are no files for user " + str(name) + "."
         else:
             error_msg += "General error - problem with the server."
@@ -104,7 +104,7 @@ def decode_server_response(sock, name, enc=None):
     received_filename, = struct.unpack(received_filename_len, filename)
 
     # file payload decode and decrypt, for recover request
-    if request_status == ResponseCode.get('RECOVER_SUCCESS'):
+    if response_code == ResponseCode.get('RECOVER_SUCCESS'):
         received_data = sock.recv(4)
         received_file_len, = struct.unpack(ULONG, received_data)
         # receive to client's directory
@@ -112,9 +112,9 @@ def decode_server_response(sock, name, enc=None):
         recv_to_file(sock, received_file_len, path_file_dst)
         enc.decrypt_file(path_file_dst)
 
-    if request_status == ResponseCode.get('UNKNOWN_FILE_ERROR'):
+    if response_code == ResponseCode.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
-    elif request_status in {ResponseCode.get('BACKUP_SUCCESS'), ResponseCode.get('DELETE_SUCCESS'),
+    elif response_code in {ResponseCode.get('BACKUP_SUCCESS'), ResponseCode.get('DELETE_SUCCESS'),
                             ResponseCode.get('RECOVER_SUCCESS'), ResponseCode.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
 
