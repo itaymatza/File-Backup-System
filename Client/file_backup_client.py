@@ -32,7 +32,18 @@ if __name__ == '__main__':
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = context.wrap_socket(s, server_side=False, server_hostname=CLIENT_KEY_SNI_HOSTNAME)
         sock.connect((SERVER_IP, SERVER_PORT))  # connect to backup server
-        uname = authenticate_client(sock)
+        # Client authentication
+        uname, authentications_attempted, number_of_attempts = '', 0, 3
+        while authentications_attempted < number_of_attempts:
+            authentications_attempted += 1
+            uname, response = authenticate_client(sock)
+            print(response)
+            if response != 'Login Failed':
+                break
+            if authentications_attempted == number_of_attempts:
+                print('Failed to authenticate 3 times.')
+                exit(-1)
+        # Encryption configuration
         key = load_key(uname)
         enc = AESenc(key)
 

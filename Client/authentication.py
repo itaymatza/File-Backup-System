@@ -26,9 +26,8 @@ def authenticate_client(sock):
     response = sock.recv(2048)
     response = response.decode()
 
-    print(response)
     if response == 'Login Failed':
-        raise Exception(response)
+        pass
     if response == 'Registration Successful':
         write_key(name)
-    return name
+    return name, response
