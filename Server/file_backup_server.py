@@ -10,13 +10,13 @@ import protocol
 import threading
 import database
 import server_helper
-from authentication import authenticate_user
+from authentication import authenticate_client
 
 SERVER_VERSION = 1
 VERSION_LENGTH = 1
 
 
-def request_handler(conn, uid, lock, db):
+def requests_handler(conn, uid, lock, db):
     request = protocol.Request()
     response = protocol.Response(SERVER_VERSION)
 
@@ -27,8 +27,6 @@ def request_handler(conn, uid, lock, db):
                 raise Exception('Connection closed by client.')
         except Exception as connection_exception:
             print('Socket connection closed: %s' % connection_exception)
-            conn.shutdown(socket.SHUT_RDWR)
-            conn.close()
             break
 
         code = protocol.recv_and_decode_client_request(conn, db, request, version)
@@ -70,6 +68,14 @@ def request_handler(conn, uid, lock, db):
         conn.sendall(encoded_response)
 
 
+def client_handler(conn, lock, db):
+    is_client_authenticated, uid = authenticate_client(connection, DB, thread_lock)
+    if is_client_authenticated:
+        requests_handler(conn, uid, lock, db)
+    conn.shutdown(socket.SHUT_RDWR)
+    conn.close()
+
+
 if __name__ == '__main__':
     TCP_IP = ''
     PORT_FILE = 'port.info'
@@ -94,9 +100,8 @@ if __name__ == '__main__':
                 print("Client connected: {}:{}".format(address_and_port[0], address_and_port[1]))
                 connection = context.wrap_socket(sock_conn, server_side=True)
                 print("SSL established. Peer: {}".format(connection.getpeercert()))
-                is_authenticated, uid = authenticate_user(connection, DB, thread_lock)
-                if is_authenticated:
-                    client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
-                    client_thread.start()
+
+                client_thread = threading.Thread(target=client_handler, args=(connection, thread_lock, DB))
+                client_thread.start()
     except Exception as error:
         print('Error: %s' % error)

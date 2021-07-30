@@ -13,7 +13,7 @@ PASSWORD_LEN = 2048
 
 
 # Returns false if connection denied and true otherwise.
-def authenticate_user(connection, db, lock):
+def authenticate_client(connection, db, lock):
     name = connection.recv(USERNAME_LEN)
     name = name.decode()
     password = connection.recv(PASSWORD_LEN)
