@@ -1,6 +1,5 @@
 import os
 import pathlib
-import shutil
 import struct
 
 UCHAR = '<B'  # unsigned 8-bit char
