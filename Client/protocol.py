@@ -66,7 +66,7 @@ def encode_request_header(version, request_code, filename=None):
 # Request payload apply just for backup request
 def encode_request_payload(filename, enc):
     if not os.path.exists(filename):
-        raise Exception("The file in the path: " + filename + " not exist.")
+        raise Exception("File '" + filename + "' is unreachable.")
 
     file_name_enc = enc.encrypt_file(filename)
     with open(file_name_enc, 'rb') as f:
@@ -89,7 +89,7 @@ def decode_server_response(sock, name, enc=None):
 
     # error status
     if response_code == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
-        error_msg = 'Server reports that there are no backed up files for the client'
+        error_msg = 'Server reports that there are no backed up files for the client.'
         return False, error_msg
     if response_code == ResponseCode.get('GENERAL_ERROR'):
         error_msg = "Server reports on general error."
