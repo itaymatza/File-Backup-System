@@ -33,7 +33,7 @@ class AESenc(object):
         return file_name
 
 
-def write_key():
+def write_key(name):
     """
     Generates a key and save it into a file
     """
