@@ -80,17 +80,19 @@ if __name__ == '__main__':
     TCP_IP = ''
     PORT_FILE = 'port.info'
     TCP_PORT = server_helper.get_tcp_port(PORT_FILE)
-    server_cert = 'server.crt'
-    server_key = 'server.key'
-    client_certs = 'client.crt'
+    SERVER_CERT = 'server.crt'
+    SERVER_KEY = 'server.key'
+    CLIENT_CERTS = 'client.crt'
     DB = database.DataBase()
 
+    # Configuration for SSL
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
-    context.load_cert_chain(certfile=server_cert, keyfile=server_key)
-    context.load_verify_locations(cafile=client_certs)
+    context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+    context.load_verify_locations(cafile=CLIENT_CERTS)
 
     try:
+        # Socket connection
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind((TCP_IP, TCP_PORT))
             sock.listen(100)
