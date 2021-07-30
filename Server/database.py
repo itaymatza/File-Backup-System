@@ -1,7 +1,7 @@
 """ File Backup System Database - DB manager."""
 import uuid
 import sqlite3
-from prettytable import PrettyTable
+#from prettytable import PrettyTable
 DATABASE = 'server.db'
 
 sql_create_clients_table = """CREATE TABLE IF NOT EXISTS clients( 
@@ -163,6 +163,11 @@ class DataBase:
         s = self.cursor.fetchone()
         return True if s[0] > 0 else False
 
+"""
+    To print the tables you can remove the notes, install PrettyTable
+    And run database.py
+"""
+""" - if
     def print_table_clients(self):
         self.cursor.execute("SELECT * FROM clients")
         l = [list(i) for i in self.cursor.fetchall()]
@@ -186,5 +191,6 @@ def printdb():
     db = DataBase()
     db.print_table_clients()
     db.print_table_files()
-
-#printdb()
+    
+printdb()    
+"""
