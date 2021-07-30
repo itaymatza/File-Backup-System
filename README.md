@@ -20,16 +20,19 @@ Requirements
 Cryptography
 ------------
 Install using pip:
+
 pip install cryptography
 
-#If you are using pycharm, you can add the module in the follwing way:
+Note: If you are using pycharm, you can add the module in the follwing way -
+
+
 In the project - Settings -> Project -> python Interpreter -> Add (The plus sign) -> cryptography -> Install Package -> OK.
 
 SSL Certificates
 ----------------
-#Note: In this redme doc, we are referring to Windows environment.
+Note: In this redme doc, we are referring to Windows environment.
 
-#Note: Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
+Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
 
 For this example, we’ll create Self-signed server and client certificates - 
 
