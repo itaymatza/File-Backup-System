@@ -1,4 +1,6 @@
 import os
+import pathlib
+
 from cryptography.fernet import Fernet
 
 
@@ -36,15 +38,22 @@ def write_key():
     Generates a key and save it into a file
     """
     key = Fernet.generate_key()
-    with open("key.key", "wb") as key_file:
+    os.mkdir(name)
+    path = pathlib.Path().resolve()
+    path = os.path.join(path, name)
+    path = os.path.join(path, "key.key")
+    with open(path, "wb") as key_file:
         key_file.write(key)
 
 
-def load_key():
+def load_key(name):
     """
     Loads the key from the current directory named `key.key`
     """
-    return open("key.key", "rb").read()
+    path = pathlib.Path().resolve()
+    path = os.path.join(path, name)
+    path = os.path.join(path, "key.key")
+    return open(path, "rb").read()
 
 
 def test():

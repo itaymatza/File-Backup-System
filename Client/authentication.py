@@ -30,5 +30,5 @@ def authenticate_user(sock):
     if response == 'Login Failed':
         raise Exception(response)
     if response == 'Registration Successful':
-        write_key()
+        write_key(name)
     return name

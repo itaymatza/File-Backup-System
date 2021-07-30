@@ -112,6 +112,11 @@ def decode_server_response(sock, uid, enc=None):
         return received_filename, False
     elif request_status == STATUS.get('RECOVER_SUCCESS'):
         file_name_dec = enc.decrypt_file(received_filename)
+        path = pathlib.Path().resolve()
+        path = os.path.join(path, uid)
+        path = os.path.join(path, file_name_dec.decode())
+        s = os.path.join(pathlib.Path().resolve(), file_name_dec.decode())
+        dest = shutil.move(s, path)
         return file_name_dec, True
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),

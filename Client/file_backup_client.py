@@ -32,7 +32,7 @@ if __name__ == '__main__':
         sock = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
         sock.connect((server_ip, server_port))  # connect to backup server
         uid = authenticate_user(sock)
-        key = load_key()
+        key = load_key(uid)
         enc = AESenc(key)
         proceed_to_another_request = True
         while proceed_to_another_request:
