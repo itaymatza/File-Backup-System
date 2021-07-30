@@ -165,11 +165,21 @@ class DataBase:
 
     def print_table_clients(self):
         self.cursor.execute("SELECT * FROM clients")
-        return self.cursor.fetchall()
+        l = [list(i) for i in self.cursor.fetchall()]
+        table = PrettyTable(['ID', 'Name', 'Password'])
+        print('Table Clients:')
+        for rec in l:
+            table.add_row(rec)
+        print(table)
 
     def print_table_files(self):
         self.cursor.execute("SELECT * FROM files")
-        return self.cursor.fetchall()
+        l = [list(i) for i in self.cursor.fetchall()]
+        table = PrettyTable(['ID', 'OwnerID','FileName','Content'])
+        print('Table Files:')
+        for rec in l:
+            table.add_row(rec)
+        print(table)
 
     """
     not in use
@@ -185,26 +195,7 @@ class DataBase:
 
 def test():
     db = DataBase()
-    _uid1 = uuid.uuid4()
-    _uid2 = uuid.uuid4()
-    db.add_client(_uid1, "sapir2", "123789")
-    db.add_client(_uid2, "sapir3", "123456")
-    db.add_file(_uid1, "lol", "aaaaaaaa")
+    db.print_table_clients()
+    db.print_table_files()
 
-    print(db.print_table_clients())
-    print(db.print_table_files())
-
-    print(db.is_client_name_exists("sapir2"))
-    print(db.is_client_id_exists(_uid2))
-    print(db.pull_password(_uid1))
-    print(db.pull_file(_uid1, "lol"))
-    db.add_file(_uid1, "lol", "bbbb")
-    print(db.pull_file(_uid1, "lol"))
-    print(db.print_table_clients())
-    print(db.print_table_files())
-    db.delete_file(_uid1, "lol")
-
-    print(db.print_table_clients())
-    print(db.print_table_files())
-
-# test()
+#test()
