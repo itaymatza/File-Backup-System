@@ -19,9 +19,10 @@ Requirements
 
 Cryptography
 ------------
+Install using pip:
 pip install cryptography
 
-If you are using pycharm, you can add the module in the follwing way:
+#If you are using pycharm, you can add the module in the follwing way:
 In the project - Settings -> Project -> python Interpreter -> Add (The plus sign) -> cryptography -> Install Package -> OK.
 
 SSL Certificates
