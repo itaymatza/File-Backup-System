@@ -104,22 +104,20 @@ def decode_server_response(sock, name, enc=None):
     received_filename_len = '<' + str(received_filename_len) + 's'  # received_filename_len format for struct
     received_filename, = struct.unpack(received_filename_len, filename)
 
-    # file payload decode, for recover request
+    # file payload decode and decrypt, for recover request
     if request_status == STATUS.get('RECOVER_SUCCESS'):
         received_data = sock.recv(4)
         received_file_len, = struct.unpack(ULONG, received_data)
-        recv_to_file(sock, received_file_len, received_filename)
+        # receive to client's directory
+        path_file_dst = os.path.join(os.path.join(pathlib.Path().resolve(), name), received_filename.decode())
+        recv_to_file(sock, received_file_len, path_file_dst)
+        enc.decrypt_file(path_file_dst)
 
     if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
-    elif request_status == STATUS.get('RECOVER_SUCCESS'):
-        file_name_dec = enc.decrypt_file(received_filename)
-        path_file_dst = os.path.join(os.path.join(pathlib.Path().resolve(), name), file_name_dec.decode())
-        file_name_src = os.path.join(pathlib.Path().resolve(), file_name_dec.decode())
-        shutil.move(file_name_src, path_file_dst)
-        return file_name_dec, True
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),
+                            STATUS.get('RECOVER_SUCCESS'),
                             STATUS.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
 
