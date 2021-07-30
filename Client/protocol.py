@@ -82,19 +82,18 @@ def encode_request_payload(filename, enc):
 
 
 # Decode server response according to the protocol spec
-# Returns tuple - (date,is_success_status)
+# Returns tuple - (date, is_success_status)
 def decode_server_response(sock, name, enc=None):
     # pars header - receive version and status bytes
     srv_version, response_code = struct.unpack('<BH', sock.recv(3))
 
     # error status
-    if response_code in {ResponseCode.get('EMPTY_FILE_LIST_ERROR'), ResponseCode.get('GENERAL_ERROR')}:
-        error_msg = "Unable to get file list from the server - \n"
-        if response_code == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
-            error_msg += "There are no files for user " + str(name) + "."
-        else:
-            error_msg += "General error - problem with the server."
-        return error_msg, False
+    if response_code == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
+        error_msg = 'Server reports that there are no backed up files for the client'
+        return False, error_msg
+    if response_code == ResponseCode.get('GENERAL_ERROR'):
+        error_msg = "Server reports on general error."
+        return False, error_msg
 
     # filename header decode
     filename_len = sock.recv(2)
@@ -113,10 +112,11 @@ def decode_server_response(sock, name, enc=None):
         enc.decrypt_file(path_file_dst)
 
     if response_code == ResponseCode.get('UNKNOWN_FILE_ERROR'):
-        return received_filename, False
+        error_msg = "Server reports that '" + received_filename.decode("utf-8") + "' file is unknown."
+        return False, error_msg
     elif response_code in {ResponseCode.get('BACKUP_SUCCESS'), ResponseCode.get('DELETE_SUCCESS'),
-                            ResponseCode.get('RECOVER_SUCCESS'), ResponseCode.get('SENT_LIST_SUCCESSFULLY')}:
-        return received_filename, True
+                           ResponseCode.get('RECOVER_SUCCESS'), ResponseCode.get('SENT_LIST_SUCCESSFULLY')}:
+        return True, received_filename
 
 
 def recv_all(sock, n):

@@ -48,51 +48,55 @@ if __name__ == '__main__':
 
             # Backup file request
             if option == RequestMenu.BACKUP.value:
-                file_to_backup = input("Please enter the path for the file to backup: ")
+                file_to_backup = input("Please enter a path for the file to backup: ")
                 try:
                     file_backup_request = encode_request(CLIENT_VERSION, 'BACKUP_REQUEST', file_to_backup, enc)
                 except Exception as exception:
-                    print(exception)
+                    print(exception)  # if the file to backup is not exist, print an error
                     continue
                 sock.sendall(file_backup_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uname)
+                is_succeeded_status, data_from_server = decode_server_response(sock, uname)
                 if is_succeeded_status:
-                    print("Successfully backup file " + file_name.decode("utf-8") + '.')
+                    print("Successfully backup file " + file_to_backup + '.')
                 else:
-                    print("Unable to backup file - " + file_name.decode("utf-8") + '.')
+                    print("Unable to backup file - " + file_to_backup + '.')
+                    print(data_from_server)
 
             # Recover file request
             elif option == RequestMenu.RECOVER.value:
                 file_to_recover = input("Please enter file name to recover: ")
                 file_recover_request = encode_request(CLIENT_VERSION, 'RECOVER_REQUEST', file_to_recover)
                 sock.sendall(file_recover_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uname, enc)
+                is_succeeded_status, data_from_server = decode_server_response(sock, uname, enc)
                 if is_succeeded_status:
-                    print("Recovered file - " + file_name.decode("utf-8") + '.')
+                    print("Recovered file - " + file_to_recover + '.')
                 else:
-                    print("Unable to get file '" + file_name.decode("utf-8") + "' from the server.")
+                    print("Unable to get file '" + file_to_recover + "' from the server.")
+                    print(data_from_server)
 
             # Get files list request
             elif option == RequestMenu.GETLIST.value:
                 list_request = encode_request(CLIENT_VERSION, 'GETLIST_REQUEST')
                 sock.sendall(list_request)
-                files_list, is_succeeded_status = decode_server_response(sock, uname)
+                is_succeeded_status, data_from_server = decode_server_response(sock, uname)
                 if is_succeeded_status:
                     print("Received files list for " + uname + ':')
-                    print(files_list.decode("utf-8"))
+                    print(data_from_server.decode("utf-8"))
                 else:
                     print("Unable to get files list from the server.")
+                    print(data_from_server)
 
             # Delete file from server request
             elif option == RequestMenu.DELETION.value:
                 file_to_delete = input("Please enter file name to delete from the server: ")
                 file_delete_request = encode_request(CLIENT_VERSION, 'DELETION_REQUEST', file_to_delete)
                 sock.sendall(file_delete_request)
-                file_name, is_succeeded_status = decode_server_response(sock, uname)
+                is_succeeded_status, data_from_server = decode_server_response(sock, uname)
                 if is_succeeded_status:
-                    print("Deletion succeed of file '" + file_name.decode("utf-8") + "'.")
+                    print("Deletion succeed of file '" + file_to_delete + "'.")
                 else:
-                    print("Unable to delete file '" + file_name.decode("utf-8") + "'.")
+                    print("Unable to delete file '" + file_to_delete + "'.")
+                    print(data_from_server)
 
             elif option == RequestMenu.EXIT.value:
                 print("Bye Bye.")
@@ -100,7 +104,7 @@ if __name__ == '__main__':
 
             else:
                 print("Illegal option, please try again.")
-        print("Closing connection")
+        print("Closing connection.")
         sock.close()
     except OSError as exception:
         print("Error: Failed to connect to the server - %s." % exception)
