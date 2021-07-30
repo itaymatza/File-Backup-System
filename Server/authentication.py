@@ -12,8 +12,24 @@ USERNAME_LEN = 256
 PASSWORD_LEN = 2048
 
 
-# Returns false if connection denied and true otherwise.
 def authenticate_client(connection, db, lock):
+    is_client_authenticated = False
+    uid = ''
+    authentications_attempted = 0
+    number_of_attempts = 3
+
+    while authentications_attempted < number_of_attempts:
+        authentications_attempted += 1
+        is_client_authenticated, uid = _authenticate_client(connection, db, lock)
+        if is_client_authenticated:
+            break
+        if authentications_attempted == number_of_attempts:
+            print('Client failed to authenticate 3 times.')
+    return is_client_authenticated, uid
+
+
+# Returns false if connection denied and true otherwise.
+def _authenticate_client(connection, db, lock):
     name = connection.recv(USERNAME_LEN)
     name = name.decode()
     password = connection.recv(PASSWORD_LEN)

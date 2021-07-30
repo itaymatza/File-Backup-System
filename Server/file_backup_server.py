@@ -69,15 +69,9 @@ def requests_handler(conn, uid, lock, db):
 
 
 def client_handler(conn, lock, db):
-    authentications_attempted, number_of_attempts = 0, 3
-    while authentications_attempted < number_of_attempts:
-        authentications_attempted += 1
-        is_client_authenticated, uid = authenticate_client(connection, DB, thread_lock)
-        if is_client_authenticated:
-            requests_handler(conn, uid, lock, db)
-            break
-        if authentications_attempted == number_of_attempts:
-            print('Client failed to authenticate 3 times.')
+    is_client_authenticated, uid = authenticate_client(connection, DB, thread_lock)
+    if is_client_authenticated:
+        requests_handler(conn, uid, lock, db)
     conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 
