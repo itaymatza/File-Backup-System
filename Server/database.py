@@ -34,7 +34,7 @@ class DataBase:
         """
         try:
             self.cursor.execute(create_table_sql)
-            #print(self.cursor.fetchall())
+            # print(self.cursor.fetchall())
         except sqlite3.Error as e:
             print(e)
 
@@ -152,7 +152,6 @@ class DataBase:
         s = self.cursor.fetchone()
         return True if s[0] > 0 else False
 
-
     def print_table_clients(self):
         self.cursor.execute("SELECT * FROM clients")
         return self.cursor.fetchall()
@@ -179,7 +178,7 @@ def test():
     _uid2 = uuid.uuid4()
     db.add_client(_uid1, "sapir2", "123789")
     db.add_client(_uid2, "sapir3", "123456")
-    db.add_file(_uid1,"lol","aaaaaaaa")
+    db.add_file(_uid1, "lol", "aaaaaaaa")
 
     print(db.print_table_clients())
     print(db.print_table_files())
@@ -188,7 +187,7 @@ def test():
     print(db.is_client_id_exists(_uid2))
     print(db.pull_password(_uid1))
     print(db.pull_file(_uid1, "lol"))
-    db.add_file(_uid1,"lol","bbbb")
+    db.add_file(_uid1, "lol", "bbbb")
     print(db.pull_file(_uid1, "lol"))
     print(db.print_table_clients())
     print(db.print_table_files())
@@ -197,4 +196,4 @@ def test():
     print(db.print_table_clients())
     print(db.print_table_files())
 
-test()
+# test()
