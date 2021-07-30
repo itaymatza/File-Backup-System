@@ -84,7 +84,7 @@ def encode_request_payload(filename, enc):
 
 # Decode server response according to the protocol spec
 # Returns tuple - (date,is_success_status)
-def decode_server_response(sock, uid, enc=None):
+def decode_server_response(sock, name, enc=None):
     # pars header - receive version and status bytes
     srv_version, request_status = struct.unpack('<BH', sock.recv(3))
 
@@ -92,7 +92,7 @@ def decode_server_response(sock, uid, enc=None):
     if request_status in {STATUS.get('EMPTY_FILE_LIST_ERROR'), STATUS.get('GENERAL_ERROR')}:
         error_msg = "Unable to get file list from the server - \n"
         if request_status == STATUS.get('EMPTY_FILE_LIST_ERROR'):
-            error_msg += "There are no files for user " + str(uid) + "."
+            error_msg += "There are no files for user " + str(name) + "."
         else:
             error_msg += "General error - problem with the server."
         return error_msg, False
@@ -114,11 +114,9 @@ def decode_server_response(sock, uid, enc=None):
         return received_filename, False
     elif request_status == STATUS.get('RECOVER_SUCCESS'):
         file_name_dec = enc.decrypt_file(received_filename)
-        path = pathlib.Path().resolve()
-        path = os.path.join(path, uid)
-        path = os.path.join(path, file_name_dec.decode())
-        s = os.path.join(pathlib.Path().resolve(), file_name_dec.decode())
-        dest = shutil.move(s, path)
+        path_file_dst = os.path.join(os.path.join(pathlib.Path().resolve(), name), file_name_dec.decode())
+        file_name_src = os.path.join(pathlib.Path().resolve(), file_name_dec.decode())
+        shutil.move(file_name_src, path_file_dst)
         return file_name_dec, True
     elif request_status in {STATUS.get('BACKUP_SUCCESS'),
                             STATUS.get('DELETE_SUCCESS'),
