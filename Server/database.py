@@ -1,7 +1,7 @@
 """ File Backup System Database - DB manager."""
 import uuid
 import sqlite3
-
+from prettytable import PrettyTable
 DATABASE = 'server.db'
 
 sql_create_clients_table = """CREATE TABLE IF NOT EXISTS clients( 
