@@ -13,12 +13,8 @@ from protocol_request import Request, RequestCode
 from protocol_response import Response, ResponseCode
 
 ULONG = '<L'  # unsigned 32-bit long
-ULONG_MAX = (2 ** (8 * 4)) - 1
 USHORT = '<H'  # unsigned 16-bit short
 UCHAR = '<B'  # unsigned 8-bit char
-UCHAR_MAX = (2 ** 8) - 1
-UNAME_LENGTH = '<256s'
-KEY_LENGTH = '<160s'
 
 
 def recv_and_decode_client_request(conn, db, request, version):
