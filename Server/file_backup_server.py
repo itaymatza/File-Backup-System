@@ -95,10 +95,10 @@ if __name__ == '__main__':
                 print("SSL established. Peer: {}".format(connection.getpeercert()))
                 is_authenticated, uid = authenticate_user(connection, DB, thread_lock)
                 if is_authenticated:
-                    # client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
-                    # client_thread.start()
-                    request_handler(connection, uid, thread_lock, DB)
-                connection.shutdown(socket.SHUT_RDWR)
-                connection.close()
+                    client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
+                    client_thread.start()
+                    # request_handler(connection, uid, thread_lock, DB)
+                #connection.shutdown(socket.SHUT_RDWR)
+                #connection.close()
     except Exception as error:
         print('Error: %s' % error)
