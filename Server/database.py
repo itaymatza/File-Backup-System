@@ -20,7 +20,7 @@ sql_create_files_table = """ CREATE TABLE IF NOT EXISTS files(
 class DataBase:
     def __init__(self):
         try:
-            self.db = sqlite3.connect(DATABASE)
+            self.db = sqlite3.connect(DATABASE, check_same_thread=False)
             self.db.text_factory = bytes
             self.cursor = self.db.cursor()
             sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes)
