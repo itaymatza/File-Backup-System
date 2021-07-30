@@ -54,10 +54,10 @@ class DataBase:
         Initials the database
         """
         if self.db is not None:
-            if not self._is_table_exists('clients'):
-                self.create_table(sql_create_clients_table)
-            if not self._is_table_exists('files'):
-                self.create_table(sql_create_files_table)
+            #self.cursor.execute("DROP TABLE clients")
+            #self.cursor.execute("DROP TABLE files")
+            self.create_table(sql_create_clients_table)
+            self.create_table(sql_create_files_table)
             self.db.commit()
         else:
             print("Error! cannot create the database connection.")
@@ -181,21 +181,10 @@ class DataBase:
             table.add_row(rec)
         print(table)
 
-    """
-    not in use
-    """
 
-    # Generates new uuid and make sure is not already in clients table.
-    def _get_new_uuid(self):
-        _uid = uuid.uuid4()
-        while self.is_client_id_exists(_uid.bytes):
-            _uid = uuid.uuid4()
-        return _uid
-
-
-def test():
+def printdb():
     db = DataBase()
     db.print_table_clients()
     db.print_table_files()
 
-#test()
+#printdb()
