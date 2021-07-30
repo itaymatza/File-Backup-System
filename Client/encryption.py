@@ -69,5 +69,4 @@ def test():
     os.remove(file_name_enc)
     os.remove(file_name_dec)
 
-
 #test()
