@@ -9,34 +9,34 @@ USHORT_MAX = (2 ** (8 * 2))
 ULONG = '<L'  # unsigned 32-bit long
 ULONG_MAX = (2 ** (8 * 4))
 
-OP = {'BACKUP_REQUEST': 100,
-      'RECOVER_REQUEST': 101,
-      'DELETION_REQUEST': 102,
-      'GETLIST_REQUEST': 103}
-STATUS = {'RECOVER_SUCCESS': 200,
-          'SENT_LIST_SUCCESSFULLY': 201,
-          'BACKUP_SUCCESS': 202,
-          'DELETE_SUCCESS': 203,
-          'UNKNOWN_FILE_ERROR': 1000,
-          'EMPTY_FILE_LIST_ERROR': 1001,
-          'GENERAL_ERROR': 1002}
+RequestCode = {'BACKUP_REQUEST': 100,
+               'RECOVER_REQUEST': 101,
+               'DELETION_REQUEST': 102,
+               'GETLIST_REQUEST': 103}
+ResponseCode = {'RECOVER_SUCCESS': 200,
+                'SENT_LIST_SUCCESSFULLY': 201,
+                'BACKUP_SUCCESS': 202,
+                'DELETE_SUCCESS': 203,
+                'UNKNOWN_FILE_ERROR': 1000,
+                'EMPTY_FILE_LIST_ERROR': 1001,
+                'GENERAL_ERROR': 1002}
 
 
 # Encode client request according to the protocol spec
-def encode_request(version, op, filename=None, enc=None):
-    request = encode_request_header(version, op, filename)
-    if op == 'BACKUP_REQUEST':
+def encode_request(version, request_code, filename=None, enc=None):
+    request = encode_request_header(version, request_code, filename)
+    if request_code == 'BACKUP_REQUEST':
         request += encode_request_payload(filename, enc)
     return request
 
 
 # Encode client request header according to the protocol spec
-def encode_request_header(version, op, filename=None):
+def encode_request_header(version, request_code, filename=None):
     # validate parameters
     if version <= 0 or UCHAR_MAX < version:
         raise Exception('Failed to create request header - Invalid version number')
-    if op in OP:
-        if op != 'GETLIST_REQUEST':
+    if request_code in RequestCode:
+        if request_code != 'GETLIST_REQUEST':
             if not filename:
                 raise Exception('Failed to create request header - Missing filename')
             head, tail = os.path.split(filename)
@@ -44,15 +44,15 @@ def encode_request_header(version, op, filename=None):
             filename_len = len(filename.encode('utf-8'))
             if filename_len <= 0 or USHORT_MAX < filename_len:
                 raise Exception('Failed to create request header - Missing filename size')
-        op_number = OP.get(op)
+        request_code_number = RequestCode.get(request_code)
     else:
-        raise Exception('Failed to create request header - Invalid op number')
+        raise Exception('Failed to create request header - Invalid request code')
 
     # encode the request header
     header = struct.pack(UCHAR, version)
-    header += struct.pack(UCHAR, op_number)
+    header += struct.pack(UCHAR, request_code_number)
 
-    if op == 'GETLIST_REQUEST':
+    if request_code == 'GETLIST_REQUEST':
         header += struct.pack(USHORT, 0)
     else:  # other requests have filename filed
         filename_len = len(filename.encode('utf-8'))
@@ -88,9 +88,9 @@ def decode_server_response(sock, name, enc=None):
     srv_version, request_status = struct.unpack('<BH', sock.recv(3))
 
     # error status
-    if request_status in {STATUS.get('EMPTY_FILE_LIST_ERROR'), STATUS.get('GENERAL_ERROR')}:
+    if request_status in {ResponseCode.get('EMPTY_FILE_LIST_ERROR'), ResponseCode.get('GENERAL_ERROR')}:
         error_msg = "Unable to get file list from the server - \n"
-        if request_status == STATUS.get('EMPTY_FILE_LIST_ERROR'):
+        if request_status == ResponseCode.get('EMPTY_FILE_LIST_ERROR'):
             error_msg += "There are no files for user " + str(name) + "."
         else:
             error_msg += "General error - problem with the server."
@@ -104,7 +104,7 @@ def decode_server_response(sock, name, enc=None):
     received_filename, = struct.unpack(received_filename_len, filename)
 
     # file payload decode and decrypt, for recover request
-    if request_status == STATUS.get('RECOVER_SUCCESS'):
+    if request_status == ResponseCode.get('RECOVER_SUCCESS'):
         received_data = sock.recv(4)
         received_file_len, = struct.unpack(ULONG, received_data)
         # receive to client's directory
@@ -112,12 +112,10 @@ def decode_server_response(sock, name, enc=None):
         recv_to_file(sock, received_file_len, path_file_dst)
         enc.decrypt_file(path_file_dst)
 
-    if request_status == STATUS.get('UNKNOWN_FILE_ERROR'):
+    if request_status == ResponseCode.get('UNKNOWN_FILE_ERROR'):
         return received_filename, False
-    elif request_status in {STATUS.get('BACKUP_SUCCESS'),
-                            STATUS.get('DELETE_SUCCESS'),
-                            STATUS.get('RECOVER_SUCCESS'),
-                            STATUS.get('SENT_LIST_SUCCESSFULLY')}:
+    elif request_status in {ResponseCode.get('BACKUP_SUCCESS'), ResponseCode.get('DELETE_SUCCESS'),
+                            ResponseCode.get('RECOVER_SUCCESS'), ResponseCode.get('SENT_LIST_SUCCESSFULLY')}:
         return received_filename, True
 
 
