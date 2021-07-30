@@ -37,25 +37,12 @@ class DataBase:
             # print(self.cursor.fetchall())
         except sqlite3.Error as e:
             print(e)
-
-    # Check if given table_name exists in given SQL DB.
-    def _is_table_exists(self, table_name):
-        self.cursor.execute("""
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type='table' AND name = '{0}'
-            """.format(table_name.replace('\'', '\'\'')))
-        if self.cursor.fetchone()[0] == 1:
-            return True
-        return False
     
     def init_sql_tables(self):
         """
         Initials the database
         """
         if self.db is not None:
-            #self.cursor.execute("DROP TABLE clients")
-            #self.cursor.execute("DROP TABLE files")
             self.create_table(sql_create_clients_table)
             self.create_table(sql_create_files_table)
             self.db.commit()
