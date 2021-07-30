@@ -24,10 +24,11 @@ def request_handler(conn, uid, lock, db):
         try:
             version = conn.recv(VERSION_LENGTH)
             if not version:
-                print('Connection closed by client.')
-                break
+                raise Exception('Connection closed by client.')
         except Exception as connection_exception:
-            print('Connection closed by client: %s' % connection_exception)
+            print('Socket connection closed: %s' % connection_exception)
+            conn.shutdown(socket.SHUT_RDWR)
+            conn.close()
             break
 
         code = protocol.recv_and_decode_client_request(conn, db, request, version)
@@ -97,7 +98,5 @@ if __name__ == '__main__':
                 if is_authenticated:
                     client_thread = threading.Thread(target=request_handler, args=(connection, uid, thread_lock, DB))
                     client_thread.start()
-                connection.shutdown(socket.SHUT_RDWR)
-                connection.close()
     except Exception as error:
         print('Error: %s' % error)
