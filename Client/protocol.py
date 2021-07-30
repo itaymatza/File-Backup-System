@@ -66,17 +66,17 @@ def encode_request_header(version, op, filename=None):
 # Encode client request payload according to the protocol spec
 # Request payload apply just for backup request
 def encode_request_payload(filename, enc):
-    try:
-        file_name_enc = enc.encrypt_file(filename)
-        with open(file_name_enc, 'rb') as f:
-            file = f.read()
-            payload_size = len(file)
-            if payload_size < 0 or ULONG_MAX < payload_size:
-                raise Exception('Failed to create request header - Invalid payload size')
-    except IOError:
-        raise IOError('Error: ' + file_name_enc + 'file is not accessible.')
-    finally:
-        os.remove(file_name_enc)
+    if not os.path.exists(filename):
+        raise Exception("The file in the path: " + filename + " not exist.")
+
+    file_name_enc = enc.encrypt_file(filename)
+    with open(file_name_enc, 'rb') as f:
+        file = f.read()
+        payload_size = len(file)
+    os.remove(file_name_enc)
+
+    if payload_size < 0 or ULONG_MAX < payload_size:
+        raise Exception('Failed to create request header - Invalid payload size')
     payload = struct.pack(ULONG, payload_size)
     payload += file
     return payload

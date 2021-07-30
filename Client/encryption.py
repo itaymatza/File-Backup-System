@@ -13,8 +13,11 @@ class AESenc(object):
         Given a file name (str) , it encrypts the file and returns the name of the encrypted file
         """
         f = Fernet(self.key)
-        with open(file_name, 'rb') as file:
-            plaintext = file.read()
+        try:
+            with open(file_name, 'rb') as file:
+                plaintext = file.read()
+        except IOError:
+            raise IOError('Error: ' + file_name + 'file is not accessible.')
         enc = f.encrypt(plaintext)
         with open(file_name[:-4] + "_enc" + file_name[-4:], 'wb') as file:
             file.write(enc)
