@@ -1,9 +1,23 @@
 # File-backup-system
 
-About
------
-Backup system..
+The Client-Server program allows the client to register and connect to the server, backup, and restores files in an encrypted manner.
 
+Server:
+The role of the server is to manage the list of users registered for the service and allow them to send files to it for backup and retrieve these files at a later date.
+
+Impementation
+-------------
+Python3, Socket programming.
+
+
+SERVER: ssl socket with multithreading.
+DATABASE: sqlite3.
+HASH: SHA256.
+
+CLIENT: ssl socket. 
+
+
+## Configuration files
 Configuration files
 -------------------
 Server:
