@@ -33,7 +33,6 @@ Client-Server program that allows clients to register and connect to a server an
 - The data and files for each client are stored in separate folders.
 
 ### Configuration files
-Client:
 - server.info - The client reads the server IP address and port from an info file in the same folder of the client's code files.
 
 ## Requirements
