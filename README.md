@@ -5,10 +5,8 @@ The Client-Server program allows the client to register and connect to the serve
 Server:
 The role of the server is to manage the list of users registered for the service and allow them to send files to it for backup and retrieve these files at a later date.
 
-Impementation
--------------
+## Impementation
 Python3, Socket programming.
-
 
 SERVER: ssl socket with multithreading.
 DATABASE: sqlite3.
@@ -18,29 +16,24 @@ CLIENT: ssl socket.
 
 
 ## Configuration files
-Configuration files
--------------------
 Server:
 - port.info
 
 Client:
 - server.info
 
-Requirements
-------------
+## Requirements
 - Cryptography.
 - SSL Certificates.
 
-Cryptography
-------------
+## Cryptography
 Install using pip:
 pip install cryptography
 
 Note: If you are using pycharm, you can add the module in the follwing way - 
 Settings -> Project -> python Interpreter -> Add (The plus sign) -> cryptography -> Install Package -> OK.
 
-SSL Certificates
-----------------
+## SSL Certificates
 Note: In this redme doc, we are referring to Windows environment.
 
 Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
