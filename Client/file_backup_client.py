@@ -24,11 +24,11 @@ if __name__ == '__main__':
     CLIENT_CERT = 'client.crt'
     CLIENT_KEY = 'client.key'
 
-    # Configuration for SSL
-    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
-    context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
-
     try:
+        # SSL configuration
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
+        context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+        # Socket connection
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = context.wrap_socket(s, server_side=False, server_hostname=CLIENT_KEY_SNI_HOSTNAME)
         sock.connect((SERVER_IP, SERVER_PORT))  # connect to backup server

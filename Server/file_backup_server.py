@@ -85,7 +85,7 @@ if __name__ == '__main__':
     CLIENT_CERTS = 'client.crt'
     DB = database.DataBase()
 
-    # Configuration for SSL
+    # SSL configuration
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
