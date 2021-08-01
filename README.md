@@ -1,16 +1,10 @@
 # File-backup-system
-
-The Client-Server program allows the client to register and connect to the server, backup, and restores files in an encrypted manner.
-
-## Impementation
-
-CLIENT: ssl socket. 
+Client-Server program that allows clients to register and connect to a server and supports backup, and restore encrypted files.
 
 ## Server
-- The server is implemented in Python.
+- The server is implemented in Python and using SSL sockets and multithreading.
 - The role of the server is to manage the list of users registered for the service and allow them to send files to it for backup and retrieve these files at a later date.
 - The server supports stateless protocol - will not store data between requests, each request stands on its own.
-- SSL sockets with multithreading.
 - The server supports multiple users and performs an authentication process with a hashed password for each client connection.
 - The server saves the data by SQL (sqlite3) tables while protecting against SQL injection, and will maintain databases in a file named server.db:
   - Client's information will be stored in a table named clients while client's passwords will be stored encrypted by the sha256 algorithm.
@@ -27,13 +21,13 @@ CLIENT: ssl socket.
 
 
 ## Client
-- The client is implemented in Python.
+- The client is implemented in Python and using SSL sockets.
 - The client will run from the console and receive user input to perform various actions.
 - Requests the client to enter credentials to authenticate with the server.
 - Allows an interface to perform operations in front of the server:
   - Backup file - Gets a file name from the client, encrypting the file using AES symmetric encryption, and sending it to the server. 
     - The files will be stored encrypted at the server and the server will not be exposed to the encrypted information.
-  - Recover file.
+  - Recover file - Gets a file name from the client, pulls the file from the server, decrypting the file using AES symmetric decryption, and saving it to the client's folder.
   - Get files list.
   - Delete file from backup.
 - The data and files for each client are stored in separate folders.
