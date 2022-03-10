@@ -48,7 +48,7 @@ pip install cryptography
 > Settings -> Project -> python Interpreter -> Add (The plus sign) -> cryptography -> Install Package -> OK.
 
 ### SSL Certificates
-Note: In this redme doc, we are referring to Windows environment.
+> Note: This redme doc referring to Windows environment.
 
 Normally you’d use a server certificate from a Certificate Authority such as Let’s Encrypt, and would setup your own Certificate Authority so you can sign and revoke client certificates.
 
@@ -65,9 +65,9 @@ set Path=%Path%;C:\OpenSSL-Installation-Path\bin
 ```
 
 From the same opened CMD:
-1) Use cd command and nevigate to your certificate dirctory.
+1) Use `cd` command and nevigate to your certificate dirctory.
 2) Create server certificate by runnig the command, and fill your server detailes. #Common Name=backupserver.com:
-'openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout server.key -out server.crt'
+`openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout server.key -out server.crt`
 
 3) Create client certificate by runnig the command, and fill your server detailes:
 `openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout client.key -out client.crt`
