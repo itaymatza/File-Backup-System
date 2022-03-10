@@ -1,4 +1,4 @@
-# File-backup-system
+# File Backup System
 Backup & Restore encrypted files program.
 This Client-Server program allows clients registration and connection to the backup server.
 
