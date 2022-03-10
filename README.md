@@ -41,8 +41,8 @@ This Client-Server program allows clients registration and connection to the bac
 - SSL Certificates.
 
 ### Cryptography
-Install using pip:
-pip install cryptography
+Install using pip:   
+`pip install cryptography`
 
 > Note: If you are using pycharm, you can add the module in the follwing way - 
 > Settings -> Project -> python Interpreter -> Add (The plus sign) -> cryptography -> Install Package -> OK.
